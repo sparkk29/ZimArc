@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import RestTimer from "@/components/RestTimer";
+import ExerciseMedia from "@/components/ExerciseMedia";
 import {
   createWorkoutSession,
   getActiveRoutinePlan,
@@ -13,6 +14,7 @@ import {
   type WorkoutRoutineDayPlan,
   type WorkoutRoutineExercisePlan,
 } from "@/lib/supabase/workouts";
+import { getExerciseVisual } from "@/lib/exercises/catalog";
 
 type SetInputState = {
   repsText: string;
@@ -160,22 +162,19 @@ export default function StartWorkoutPage() {
 
   if (isLoading) {
     return (
-      <div className="mx-auto w-full max-w-4xl px-4 py-10">
-        <p className="text-sm text-zinc-600">Loading active routine...</p>
+      <div className="mx-auto w-full max-w-5xl px-4 py-10">
+        <p className="text-sm text-[var(--muted)]">Loading active routine...</p>
       </div>
     );
   }
 
   if (!planDays || planDays.length === 0) {
     return (
-      <div className="mx-auto w-full max-w-4xl px-4 py-10">
-        <h1 className="text-2xl font-semibold">Start workout</h1>
-        {error ? <p className="mt-2 text-sm text-red-600">{error}</p> : null}
+      <div className="mx-auto w-full max-w-5xl px-4 py-10">
+        <h1 className="wa-display text-3xl font-bold">Start workout</h1>
+        {error ? <p className="mt-2 text-sm text-[var(--danger)]">{error}</p> : null}
         <div className="mt-4">
-          <Link
-            href="/routines"
-            className="rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800"
-          >
+          <Link href="/routines" className="wa-btn wa-btn-primary">
             Go to routine builder
           </Link>
         </div>
@@ -184,114 +183,117 @@ export default function StartWorkoutPage() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-4xl px-4 py-10">
+    <div className="mx-auto w-full max-w-5xl px-4 py-8 sm:py-10">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-3xl font-semibold">Log workout</h1>
-          <p className="mt-2 text-sm text-zinc-600">
-            Fill in your sets and save.
+          <h1 className="wa-display text-3xl font-bold sm:text-4xl">
+            Log workout
+          </h1>
+          <p className="mt-2 text-sm text-[var(--muted)]">
+            Photos help you confirm each movement before you lift.
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <Link
-            href="/workouts"
-            className="rounded-md border border-zinc-300 px-3 py-2 text-sm font-medium text-zinc-900 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-100"
-          >
+          <Link href="/workouts" className="wa-btn wa-btn-ghost">
             Cancel
           </Link>
           <button
             type="button"
             onClick={onSaveWorkout}
             disabled={!sessionId}
-            className="rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
+            className="wa-btn wa-btn-primary"
           >
             Save workout
           </button>
         </div>
       </div>
 
-      {error ? <p className="mt-4 text-sm text-red-600">{error}</p> : null}
+      {error ? <p className="mt-4 text-sm text-[var(--danger)]">{error}</p> : null}
 
       <div className="mt-8 flex flex-col gap-8">
         {planDays.map((day) => (
           <section key={day.id}>
-            <h2 className="mb-4 text-xl font-semibold">{day.label}</h2>
-            <div className="flex flex-col gap-6">
+            <h2 className="wa-display mb-4 text-2xl font-bold">{day.label}</h2>
+            <div className="flex flex-col gap-5">
               {day.exercises.map((ex) => {
                 const targetSets = Math.max(1, Math.trunc(ex.target_sets));
+                const visual = getExerciseVisual(ex.exercise_name);
                 return (
-                  <div
-                    key={ex.id}
-                    className="rounded-xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-950"
-                  >
-                    <div className="flex items-start justify-between gap-4">
-                      <div>
-                        <h3 className="text-lg font-semibold">
+                  <div key={ex.id} className="wa-card overflow-hidden">
+                    <div className="grid gap-0 md:grid-cols-[220px_1fr]">
+                      <ExerciseMedia
+                        name={ex.exercise_name}
+                        size="hero"
+                        className="rounded-none md:rounded-none"
+                        showMeta
+                      />
+                      <div className="p-5">
+                        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--ice)]">
+                          {visual.muscle}
+                        </p>
+                        <h3 className="wa-display mt-1 text-2xl font-bold">
                           {ex.exercise_name}
                         </h3>
-                        <p className="mt-1 text-sm text-zinc-600">
+                        <p className="mt-1 text-sm text-[var(--muted)]">
                           Target: {targetSets} sets • {ex.target_reps} • Rest{" "}
                           {ex.rest_seconds}s
                         </p>
-                      </div>
-                    </div>
 
-                    <div className="mt-4">
-                      <RestTimer defaultSeconds={ex.rest_seconds || 60} />
-                    </div>
+                        <div className="mt-4">
+                          <RestTimer defaultSeconds={ex.rest_seconds || 60} />
+                        </div>
 
-                    <div className="mt-4 flex flex-col gap-3">
-                      {Array.from({ length: targetSets }, (_, i) => i + 1).map(
-                        (setOrder) => (
-                          <div
-                            key={setOrder}
-                            className="grid gap-3 md:grid-cols-3"
-                          >
-                            <div className="flex items-center">
-                              <span className="text-sm font-medium">
-                                Set {setOrder}
-                              </span>
+                        <div className="mt-4 flex flex-col gap-3">
+                          {Array.from(
+                            { length: targetSets },
+                            (_, i) => i + 1,
+                          ).map((setOrder) => (
+                            <div
+                              key={setOrder}
+                              className="grid gap-3 rounded-xl border border-[var(--border)] bg-[rgba(7,17,31,0.35)] p-3 md:grid-cols-3"
+                            >
+                              <div className="flex items-center">
+                                <span className="text-sm font-semibold">
+                                  Set {setOrder}
+                                </span>
+                              </div>
+                              <label className="flex flex-col gap-1">
+                                <span className="wa-label">Reps</span>
+                                <input
+                                  className="wa-input"
+                                  type="number"
+                                  inputMode="numeric"
+                                  value={
+                                    setValues[ex.id]?.[setOrder]?.repsText ?? ""
+                                  }
+                                  onChange={(e) =>
+                                    updateSetInput(ex.id, setOrder, {
+                                      repsText: e.target.value,
+                                    })
+                                  }
+                                />
+                              </label>
+                              <label className="flex flex-col gap-1">
+                                <span className="wa-label">Weight</span>
+                                <input
+                                  className="wa-input"
+                                  type="number"
+                                  inputMode="decimal"
+                                  value={
+                                    setValues[ex.id]?.[setOrder]?.weightText ??
+                                    ""
+                                  }
+                                  onChange={(e) =>
+                                    updateSetInput(ex.id, setOrder, {
+                                      weightText: e.target.value,
+                                    })
+                                  }
+                                />
+                              </label>
                             </div>
-                            <label className="flex flex-col gap-1">
-                              <span className="text-xs font-medium text-zinc-600">
-                                Reps (actual)
-                              </span>
-                              <input
-                                className="rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm outline-none focus:border-zinc-500"
-                                type="number"
-                                inputMode="numeric"
-                                value={
-                                  setValues[ex.id]?.[setOrder]?.repsText ?? ""
-                                }
-                                onChange={(e) =>
-                                  updateSetInput(ex.id, setOrder, {
-                                    repsText: e.target.value,
-                                  })
-                                }
-                              />
-                            </label>
-                            <label className="flex flex-col gap-1">
-                              <span className="text-xs font-medium text-zinc-600">
-                                Weight (actual)
-                              </span>
-                              <input
-                                className="rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm outline-none focus:border-zinc-500"
-                                type="number"
-                                inputMode="decimal"
-                                value={
-                                  setValues[ex.id]?.[setOrder]?.weightText ??
-                                  ""
-                                }
-                                onChange={(e) =>
-                                  updateSetInput(ex.id, setOrder, {
-                                    weightText: e.target.value,
-                                  })
-                                }
-                              />
-                            </label>
-                          </div>
-                        ),
-                      )}
+                          ))}
+                        </div>
+                      </div>
                     </div>
                   </div>
                 );

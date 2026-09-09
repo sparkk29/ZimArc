@@ -14,7 +14,7 @@ import ReminderPoller from "./ReminderPoller";
 const AUTH_ROUTES = new Set(["/login", "/signup"]);
 
 const NAV_ITEMS = [
-  { href: "/dashboard", label: "Dashboard" },
+  { href: "/dashboard", label: "Home" },
   { href: "/routines", label: "Routines" },
   { href: "/workouts", label: "Workouts" },
   { href: "/progress", label: "Progress" },
@@ -44,34 +44,48 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <>
       {showNav ? (
-        <header className="border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
-          <div className="mx-auto flex max-w-4xl items-center justify-between gap-4 px-4 py-3">
-            <Link href="/dashboard" className="text-sm font-semibold">
-              Winter Arc
+        <header className="sticky top-0 z-40 border-b border-[var(--border)] bg-[rgba(7,17,31,0.78)] backdrop-blur-xl">
+          <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-3">
+            <Link href="/dashboard" className="group flex items-center gap-3">
+              <span className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[rgba(158,201,222,0.28)] bg-[rgba(63,135,168,0.18)] text-sm font-bold text-[var(--ice)]">
+                WA
+              </span>
+              <span>
+                <span className="wa-display block text-lg font-bold leading-none tracking-tight">
+                  Winter Arc
+                </span>
+                <span className="text-[10px] uppercase tracking-[0.18em] text-[var(--muted)]">
+                  Train through the cold
+                </span>
+              </span>
             </Link>
-            <nav className="flex flex-wrap gap-2">
-              {NAV_ITEMS.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={
-                    pathname === item.href ||
-                    (item.href !== "/dashboard" &&
-                      pathname.startsWith(item.href))
-                      ? "rounded-md bg-zinc-900 px-3 py-1.5 text-xs font-medium text-white"
-                      : "rounded-md px-3 py-1.5 text-xs font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-900"
-                  }
-                >
-                  {item.label}
-                </Link>
-              ))}
+            <nav className="flex flex-wrap justify-end gap-1.5">
+              {NAV_ITEMS.map((item) => {
+                const active =
+                  pathname === item.href ||
+                  (item.href !== "/dashboard" &&
+                    pathname.startsWith(item.href));
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={
+                      active
+                        ? "rounded-full bg-[linear-gradient(135deg,#4f97b5_0%,#2f6f8d_100%)] px-3 py-1.5 text-xs font-semibold text-white"
+                        : "rounded-full px-3 py-1.5 text-xs font-medium text-[var(--muted)] transition hover:bg-[rgba(158,201,222,0.08)] hover:text-[var(--frost)]"
+                    }
+                  >
+                    {item.label}
+                  </Link>
+                );
+              })}
             </nav>
           </div>
         </header>
       ) : null}
 
       <ReminderPoller settings={reminderSettings} />
-      {children}
+      <main className="flex-1">{children}</main>
     </>
   );
 }

@@ -48,7 +48,7 @@ export default function RestTimer({ defaultSeconds = 60 }: RestTimerProps) {
             oscillator.start();
             oscillator.stop(ctx.currentTime + 0.2);
           } catch {
-            // Ignore audio failures (autoplay policies, unsupported browsers).
+            // Ignore audio failures.
           }
           return 0;
         }
@@ -81,13 +81,13 @@ export default function RestTimer({ defaultSeconds = 60 }: RestTimerProps) {
       : 0;
 
   return (
-    <div className="rounded-lg border border-zinc-200 bg-zinc-50 p-3 dark:border-zinc-800 dark:bg-zinc-900/40">
+    <div className="rounded-2xl border border-[var(--border)] bg-[rgba(7,17,31,0.45)] p-3">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--ice)]">
             Rest timer
           </p>
-          <p className="mt-1 text-2xl font-semibold tabular-nums">
+          <p className="mt-1 text-2xl font-semibold tabular-nums text-[var(--frost)]">
             {secondsLeft > 0 ? formatTime(secondsLeft) : formatTime(duration)}
           </p>
         </div>
@@ -97,7 +97,7 @@ export default function RestTimer({ defaultSeconds = 60 }: RestTimerProps) {
             <button
               type="button"
               onClick={() => start()}
-              className="rounded-md bg-zinc-900 px-3 py-1.5 text-xs font-medium text-white"
+              className="wa-btn wa-btn-primary !px-3 !py-1.5 !text-xs"
             >
               {secondsLeft > 0 ? "Resume" : `Start ${duration}s`}
             </button>
@@ -105,7 +105,7 @@ export default function RestTimer({ defaultSeconds = 60 }: RestTimerProps) {
             <button
               type="button"
               onClick={pause}
-              className="rounded-md border border-zinc-300 px-3 py-1.5 text-xs font-medium text-zinc-900 dark:border-zinc-700 dark:text-zinc-100"
+              className="wa-btn wa-btn-ghost !px-3 !py-1.5 !text-xs"
             >
               Pause
             </button>
@@ -113,38 +113,27 @@ export default function RestTimer({ defaultSeconds = 60 }: RestTimerProps) {
           <button
             type="button"
             onClick={reset}
-            className="rounded-md border border-zinc-300 px-3 py-1.5 text-xs font-medium text-zinc-900 dark:border-zinc-700 dark:text-zinc-100"
+            className="wa-btn wa-btn-ghost !px-3 !py-1.5 !text-xs"
           >
             Reset
           </button>
-          <button
-            type="button"
-            onClick={() => start(30)}
-            className="rounded-md border border-zinc-300 px-3 py-1.5 text-xs font-medium text-zinc-900 dark:border-zinc-700 dark:text-zinc-100"
-          >
-            30s
-          </button>
-          <button
-            type="button"
-            onClick={() => start(60)}
-            className="rounded-md border border-zinc-300 px-3 py-1.5 text-xs font-medium text-zinc-900 dark:border-zinc-700 dark:text-zinc-100"
-          >
-            60s
-          </button>
-          <button
-            type="button"
-            onClick={() => start(90)}
-            className="rounded-md border border-zinc-300 px-3 py-1.5 text-xs font-medium text-zinc-900 dark:border-zinc-700 dark:text-zinc-100"
-          >
-            90s
-          </button>
+          {[30, 60, 90].map((sec) => (
+            <button
+              key={sec}
+              type="button"
+              onClick={() => start(sec)}
+              className="wa-btn wa-btn-ghost !px-3 !py-1.5 !text-xs"
+            >
+              {sec}s
+            </button>
+          ))}
         </div>
       </div>
 
       {secondsLeft > 0 ? (
-        <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-zinc-200 dark:bg-zinc-800">
+        <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-[rgba(158,201,222,0.12)]">
           <div
-            className="h-full rounded-full bg-sky-700 transition-all dark:bg-sky-300"
+            className="h-full rounded-full bg-[linear-gradient(90deg,#9ec9de,#3f87a8)] transition-all"
             style={{ width: `${progress}%` }}
           />
         </div>

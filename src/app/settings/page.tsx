@@ -118,27 +118,29 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-4xl px-4 py-10">
-      <h1 className="text-3xl font-semibold">Settings</h1>
-      <p className="mt-2 text-sm text-zinc-600">
+    <div className="mx-auto w-full max-w-5xl px-4 py-8 sm:py-10">
+      <h1 className="wa-display text-3xl font-bold sm:text-4xl">Settings</h1>
+      <p className="mt-2 text-sm text-[var(--muted)]">
         Configure workout reminders for your Winter Arc.
       </p>
 
-      {error ? <p className="mt-4 text-sm text-red-600">{error}</p> : null}
-      {message ? <p className="mt-4 text-sm text-emerald-700">{message}</p> : null}
+      {error ? <p className="mt-4 text-sm text-[var(--danger)]">{error}</p> : null}
+      {message ? (
+        <p className="mt-4 text-sm text-[var(--success)]">{message}</p>
+      ) : null}
 
       {isLoading ? (
-        <p className="mt-6 text-sm text-zinc-600">Loading settings...</p>
+        <p className="mt-6 text-sm text-[var(--muted)]">Loading settings...</p>
       ) : (
         <form onSubmit={onSubmit} className="mt-8 flex flex-col gap-6">
-          <div className="rounded-xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
-            <h2 className="text-lg font-semibold">Workout reminders</h2>
-            <p className="mt-1 text-sm text-zinc-600">
+          <div className="wa-card p-5">
+            <h2 className="wa-display text-xl font-bold">Workout reminders</h2>
+            <p className="mt-1 text-sm text-[var(--muted)]">
               Browser notifications at your chosen time on selected days.
               Install Winter Arc as an app for better offline/background support.
             </p>
 
-            <label className="mt-4 flex items-center gap-3 text-sm">
+            <label className="mt-4 flex items-center gap-3 text-sm text-[var(--frost)]">
               <input
                 type="checkbox"
                 checked={settings.enabled}
@@ -152,11 +154,11 @@ export default function SettingsPage() {
               Enable reminders
             </label>
 
-            <label className="mt-4 flex flex-col gap-1">
-              <span className="text-sm font-medium">Reminder time</span>
+            <label className="mt-4 flex max-w-xs flex-col gap-1.5">
+              <span className="wa-label">Reminder time</span>
               <input
                 type="time"
-                className="w-full max-w-xs rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm outline-none focus:border-zinc-500"
+                className="wa-input"
                 value={settings.time}
                 onChange={(e) =>
                   setSettings((prev) => ({ ...prev, time: e.target.value }))
@@ -165,7 +167,7 @@ export default function SettingsPage() {
             </label>
 
             <div className="mt-4">
-              <p className="text-sm font-medium">Reminder days</p>
+              <p className="wa-label">Reminder days</p>
               <div className="mt-2 flex flex-wrap gap-2">
                 {DAY_OPTIONS.map((day) => {
                   const active = settings.days.includes(day.value);
@@ -176,8 +178,8 @@ export default function SettingsPage() {
                       onClick={() => toggleDay(day.value)}
                       className={
                         active
-                          ? "rounded-md bg-zinc-900 px-3 py-1.5 text-xs font-medium text-white"
-                          : "rounded-md border border-zinc-300 px-3 py-1.5 text-xs font-medium text-zinc-700 dark:border-zinc-700 dark:text-zinc-300"
+                          ? "rounded-full bg-[linear-gradient(135deg,#4f97b5_0%,#2f6f8d_100%)] px-3 py-1.5 text-xs font-semibold text-white"
+                          : "wa-btn wa-btn-ghost !px-3 !py-1.5 !text-xs"
                       }
                     >
                       {day.label}
@@ -188,9 +190,9 @@ export default function SettingsPage() {
             </div>
 
             <div className="mt-4 flex flex-col gap-2">
-              <p className="text-sm text-zinc-600">
+              <p className="text-sm text-[var(--muted)]">
                 Notification permission:{" "}
-                <span className="font-medium text-zinc-900 dark:text-zinc-100">
+                <span className="font-semibold text-[var(--frost)]">
                   {notificationPermission}
                 </span>
               </p>
@@ -199,7 +201,7 @@ export default function SettingsPage() {
                 <button
                   type="button"
                   onClick={requestNotifications}
-                  className="w-fit rounded-md border border-zinc-300 px-3 py-2 text-sm font-medium text-zinc-900 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-100"
+                  className="wa-btn wa-btn-ghost w-fit"
                 >
                   Enable browser notifications
                 </button>
@@ -210,7 +212,7 @@ export default function SettingsPage() {
           <button
             type="submit"
             disabled={isSaving}
-            className="w-fit rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
+            className="wa-btn wa-btn-primary w-fit"
           >
             {isSaving ? "Saving..." : "Save settings"}
           </button>

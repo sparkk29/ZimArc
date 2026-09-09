@@ -33,12 +33,11 @@ export default function LogoutButton() {
         type="button"
         onClick={onLogout}
         disabled={isPending}
-        className="rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
+        className="wa-btn wa-btn-ghost"
       >
         {isPending ? "Logging out..." : "Log out"}
       </button>
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
+      {error ? <p className="text-sm text-[var(--danger)]">{error}</p> : null}
     </div>
   );
 }
-

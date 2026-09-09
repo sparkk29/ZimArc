@@ -12,9 +12,7 @@ function LoginForm() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(
-    searchParams.get("error"),
-  );
+  const [error, setError] = useState<string | null>(searchParams.get("error"));
   const [isPending, setIsPending] = useState(false);
 
   async function onSubmit(e: FormEvent) {
@@ -45,56 +43,68 @@ function LoginForm() {
   }
 
   return (
-    <div className="mx-auto flex min-h-[70vh] w-full max-w-md flex-col justify-center px-4">
-      <div className="mb-6">
-        <h1 className="text-3xl font-semibold">Log in</h1>
-        <p className="mt-2 text-sm text-zinc-600">
-          Start your Winter Arc routine.
+    <div className="mx-auto grid min-h-[100dvh] w-full max-w-5xl items-center gap-8 px-4 py-10 lg:grid-cols-2">
+      <div className="animate-fade-up hidden lg:block">
+        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--ice)]">
+          Winter Arc
+        </p>
+        <h1 className="wa-display mt-4 text-5xl font-bold leading-none">
+          Return to the work.
+        </h1>
+        <p className="mt-4 max-w-md text-[var(--muted)]">
+          Your routines, sets, and winter streak are waiting.
         </p>
       </div>
 
-      <form onSubmit={onSubmit} className="flex flex-col gap-4">
-        <label className="flex flex-col gap-1">
-          <span className="text-sm font-medium">Email</span>
-          <input
-            className="rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm outline-none focus:border-zinc-500"
-            type="email"
-            autoComplete="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </label>
+      <div className="animate-fade-up-delay wa-card p-6 sm:p-8">
+        <h2 className="wa-display text-3xl font-bold">Log in</h2>
+        <p className="mt-2 text-sm text-[var(--muted)]">
+          Continue your Winter Arc.
+        </p>
 
-        <label className="flex flex-col gap-1">
-          <span className="text-sm font-medium">Password</span>
-          <input
-            className="rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm outline-none focus:border-zinc-500"
-            type="password"
-            autoComplete="current-password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </label>
+        <form onSubmit={onSubmit} className="mt-6 flex flex-col gap-4">
+          <label className="flex flex-col gap-1.5">
+            <span className="wa-label">Email</span>
+            <input
+              className="wa-input"
+              type="email"
+              autoComplete="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </label>
 
-        <button
-          type="submit"
-          disabled={isPending}
-          className="rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
-        >
-          {isPending ? "Signing in..." : "Sign in"}
-        </button>
+          <label className="flex flex-col gap-1.5">
+            <span className="wa-label">Password</span>
+            <input
+              className="wa-input"
+              type="password"
+              autoComplete="current-password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </label>
 
-        {error ? <p className="text-sm text-red-600">{error}</p> : null}
-      </form>
+          <button
+            type="submit"
+            disabled={isPending}
+            className="wa-btn wa-btn-primary mt-2"
+          >
+            {isPending ? "Signing in..." : "Sign in"}
+          </button>
 
-      <p className="mt-6 text-center text-sm text-zinc-600">
-        New here?{" "}
-        <Link className="font-medium text-zinc-900" href="/signup">
-          Create an account
-        </Link>
-      </p>
+          {error ? <p className="text-sm text-[var(--danger)]">{error}</p> : null}
+        </form>
+
+        <p className="mt-6 text-center text-sm text-[var(--muted)]">
+          New here?{" "}
+          <Link className="font-semibold text-[var(--ice)]" href="/signup">
+            Create an account
+          </Link>
+        </p>
+      </div>
     </div>
   );
 }
@@ -103,7 +113,7 @@ export default function LoginPage() {
   return (
     <Suspense
       fallback={
-        <div className="mx-auto flex min-h-[70vh] w-full max-w-md items-center justify-center px-4 text-sm text-zinc-600">
+        <div className="mx-auto flex min-h-[70vh] w-full max-w-md items-center justify-center px-4 text-sm text-[var(--muted)]">
           Loading...
         </div>
       }

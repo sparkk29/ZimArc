@@ -8,6 +8,7 @@ import {
   type ExerciseProgressSummary,
 } from "@/lib/supabase/workouts";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
+import ExerciseMedia from "@/components/ExerciseMedia";
 
 type CompletedSessionRow = {
   id: string;
@@ -225,39 +226,45 @@ export default function ProgressPage() {
   }, [selectedExercise]);
 
   return (
-    <div className="mx-auto w-full max-w-4xl px-4 py-10">
-      <h1 className="text-3xl font-semibold">Progress</h1>
-      <p className="mt-2 text-sm text-zinc-600">
+    <div className="mx-auto w-full max-w-5xl px-4 py-8 sm:py-10">
+      <h1 className="wa-display text-3xl font-bold sm:text-4xl">Progress</h1>
+      <p className="mt-2 text-sm text-[var(--muted)]">
         Streaks, weekly completion, and volume from your logged workouts.
       </p>
 
-      {error ? <p className="mt-4 text-sm text-red-600">{error}</p> : null}
+      {error ? <p className="mt-4 text-sm text-[var(--danger)]">{error}</p> : null}
       {isLoading ? (
-        <p className="mt-4 text-sm text-zinc-600">Loading stats...</p>
+        <p className="mt-4 text-sm text-[var(--muted)]">Loading stats...</p>
       ) : null}
 
       {!isLoading ? (
         <>
           <div className="mt-8 grid gap-4 md:grid-cols-3">
-            <div className="rounded-xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
-              <p className="text-sm text-zinc-600">Current streak</p>
-              <p className="mt-1 text-3xl font-semibold">{streakDays} days</p>
+            <div className="wa-card p-5">
+              <p className="text-sm text-[var(--muted)]">Current streak</p>
+              <p className="wa-display mt-1 text-3xl font-bold">
+                {streakDays} days
+              </p>
             </div>
-            <div className="rounded-xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
-              <p className="text-sm text-zinc-600">Workouts completed</p>
-              <p className="mt-1 text-3xl font-semibold">{totalWorkouts}</p>
+            <div className="wa-card p-5">
+              <p className="text-sm text-[var(--muted)]">Workouts completed</p>
+              <p className="wa-display mt-1 text-3xl font-bold">
+                {totalWorkouts}
+              </p>
             </div>
-            <div className="rounded-xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
-              <p className="text-sm text-zinc-600">Volume (30d)</p>
-              <p className="mt-1 text-3xl font-semibold">
+            <div className="wa-card p-5">
+              <p className="text-sm text-[var(--muted)]">Volume (30d)</p>
+              <p className="wa-display mt-1 text-3xl font-bold">
                 {Math.round(totalVolume30d)}
               </p>
             </div>
           </div>
 
           <div className="mt-8 grid gap-4 md:grid-cols-2">
-            <div className="rounded-xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
-              <h2 className="text-lg font-semibold">Last 14 days volume</h2>
+            <div className="wa-card p-5">
+              <h2 className="wa-display text-xl font-bold">
+                Last 14 days volume
+              </h2>
               <div className="mt-4 flex items-end gap-2">
                 {volume14d.map((d) => (
                   <div key={d.date} className="flex flex-col items-center gap-2">
@@ -266,26 +273,26 @@ export default function ProgressPage() {
                       style={{
                         height: `${Math.round((d.volume / maxVolume14) * 80)}px`,
                       }}
-                      className="w-4 rounded-sm bg-zinc-900 dark:bg-zinc-100"
+                      className="w-4 rounded-sm bg-[linear-gradient(180deg,#9ec9de,#3f87a8)]"
                     />
                   </div>
                 ))}
               </div>
-              <p className="mt-3 text-xs text-zinc-600">
+              <p className="mt-3 text-xs text-[var(--muted)]">
                 Volume = reps * weight (only when both are logged).
               </p>
             </div>
 
-            <div className="rounded-xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
-              <h2 className="text-lg font-semibold">Weekly completion</h2>
+            <div className="wa-card p-5">
+              <h2 className="wa-display text-xl font-bold">Weekly completion</h2>
               <div className="mt-4 flex flex-col gap-3">
                 {weeklyCounts.map((w) => (
                   <div key={w.key} className="flex items-center gap-3">
-                    <div className="w-28 text-xs text-zinc-600">{w.key}</div>
-                    <div className="flex-1 rounded bg-zinc-100 p-1 dark:bg-zinc-900">
+                    <div className="w-28 text-xs text-[var(--muted)]">{w.key}</div>
+                    <div className="flex-1 rounded bg-[rgba(158,201,222,0.08)] p-1">
                       <div
                         style={{ width: `${Math.min(100, w.count * 20)}%` }}
-                        className="h-2 rounded bg-zinc-900 dark:bg-zinc-100"
+                        className="h-2 rounded bg-[linear-gradient(90deg,#9ec9de,#3f87a8)]"
                       />
                     </div>
                     <div className="w-10 text-right text-sm font-medium">
@@ -294,7 +301,7 @@ export default function ProgressPage() {
                   </div>
                 ))}
                 {weeklyCounts.length === 0 ? (
-                  <p className="text-sm text-zinc-600">
+                  <p className="text-sm text-[var(--muted)]">
                     Complete a workout to see your stats.
                   </p>
                 ) : null}
@@ -302,14 +309,14 @@ export default function ProgressPage() {
             </div>
           </div>
 
-          <div className="mt-8 rounded-xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
-            <h2 className="text-lg font-semibold">Exercise progress</h2>
-            <p className="mt-1 text-sm text-zinc-600">
+          <div className="wa-card mt-8 p-5">
+            <h2 className="wa-display text-xl font-bold">Exercise progress</h2>
+            <p className="mt-1 text-sm text-[var(--muted)]">
               Volume and personal records per exercise.
             </p>
 
             {exerciseStats.length === 0 ? (
-              <p className="mt-4 text-sm text-zinc-600">
+              <p className="mt-4 text-sm text-[var(--muted)]">
                 Log workouts with reps and weight to see exercise stats.
               </p>
             ) : (
@@ -322,27 +329,34 @@ export default function ProgressPage() {
                       onClick={() => setSelectedExerciseId(ex.exerciseId)}
                       className={
                         ex.exerciseId === selectedExerciseId
-                          ? "rounded-lg border-2 border-zinc-900 bg-zinc-50 p-4 text-left dark:border-zinc-100 dark:bg-zinc-900"
-                          : "rounded-lg border border-zinc-200 p-4 text-left hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-900"
+                          ? "rounded-2xl border border-[rgba(158,201,222,0.45)] bg-[rgba(63,135,168,0.14)] p-3 text-left"
+                          : "rounded-2xl border border-[var(--border)] p-3 text-left transition hover:border-[rgba(158,201,222,0.35)]"
                       }
                     >
-                      <p className="font-medium">{ex.exerciseName}</p>
-                      <p className="mt-1 text-xs text-zinc-600">
-                        {Math.round(ex.totalVolume)} vol · {ex.sessionCount}{" "}
-                        sessions
-                      </p>
-                      {ex.bestWeight != null ? (
-                        <p className="mt-1 text-xs font-medium text-zinc-800 dark:text-zinc-200">
-                          PR: {ex.bestWeight}
-                        </p>
-                      ) : null}
+                      <div className="flex gap-3">
+                        <ExerciseMedia name={ex.exerciseName} size="sm" />
+                        <div className="min-w-0">
+                          <p className="truncate font-semibold">
+                            {ex.exerciseName}
+                          </p>
+                          <p className="mt-1 text-xs text-[var(--muted)]">
+                            {Math.round(ex.totalVolume)} vol · {ex.sessionCount}{" "}
+                            sessions
+                          </p>
+                          {ex.bestWeight != null ? (
+                            <p className="mt-1 text-xs font-semibold text-[var(--ice)]">
+                              PR: {ex.bestWeight}
+                            </p>
+                          ) : null}
+                        </div>
+                      </div>
                     </button>
                   ))}
                 </div>
 
                 {selectedExercise ? (
                   <div className="mt-6">
-                    <h3 className="font-semibold">
+                    <h3 className="font-semibold text-[var(--frost)]">
                       {selectedExercise.exerciseName} over time
                     </h3>
                     <div className="mt-4 flex items-end gap-2 overflow-x-auto pb-2">
@@ -356,25 +370,25 @@ export default function ProgressPage() {
                             style={{
                               height: `${Math.round((point.volume / maxExerciseVolume) * 80)}px`,
                             }}
-                            className="w-4 rounded-sm bg-sky-700 dark:bg-sky-300"
+                            className="w-4 rounded-sm bg-[linear-gradient(180deg,#9ec9de,#3f87a8)]"
                           />
-                          <span className="text-[10px] text-zinc-500">
+                          <span className="text-[10px] text-[var(--muted)]">
                             {point.date.slice(5)}
                           </span>
                         </div>
                       ))}
                     </div>
-                    <div className="mt-3 flex flex-wrap gap-4 text-sm text-zinc-600">
+                    <div className="mt-3 flex flex-wrap gap-4 text-sm text-[var(--muted)]">
                       <span>
                         Total volume:{" "}
-                        <strong className="text-zinc-900 dark:text-zinc-100">
+                        <strong className="text-[var(--frost)]">
                           {Math.round(selectedExercise.totalVolume)}
                         </strong>
                       </span>
                       {selectedExercise.bestWeight != null ? (
                         <span>
                           Best weight:{" "}
-                          <strong className="text-zinc-900 dark:text-zinc-100">
+                          <strong className="text-[var(--frost)]">
                             {selectedExercise.bestWeight}
                           </strong>
                         </span>
@@ -386,18 +400,18 @@ export default function ProgressPage() {
             )}
           </div>
 
-          <div className="mt-8 rounded-xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
-            <h2 className="text-lg font-semibold">Recent workouts</h2>
+          <div className="wa-card mt-8 p-5">
+            <h2 className="wa-display text-xl font-bold">Recent workouts</h2>
             <div className="mt-3 flex flex-wrap gap-2">
               {recentWorkouts.length === 0 ? (
-                <p className="text-sm text-zinc-600">
+                <p className="text-sm text-[var(--muted)]">
                   No completed workouts yet.
                 </p>
               ) : (
                 recentWorkouts.map((d) => (
                   <span
                     key={d}
-                    className="rounded-full bg-zinc-100 px-3 py-1 text-xs font-medium text-zinc-800 dark:bg-zinc-900 dark:text-zinc-100"
+                    className="rounded-full border border-[var(--border)] bg-[rgba(158,201,222,0.08)] px-3 py-1 text-xs font-medium text-[var(--frost)]"
                   >
                     {d}
                   </span>

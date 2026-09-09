@@ -2,7 +2,13 @@
 
 import Link from "next/link";
 import { FormEvent, useMemo, useState } from "react";
-import type { ExerciseDraft, RoutineDayDraft, RoutineDraft } from "@/lib/supabase/routines";
+import type {
+  ExerciseDraft,
+  RoutineDayDraft,
+  RoutineDraft,
+} from "@/lib/supabase/routines";
+import ExerciseMedia from "@/components/ExerciseMedia";
+import ExercisePicker from "@/components/ExercisePicker";
 
 export type ExerciseDraftForm = Omit<ExerciseDraft, "weight"> & {
   weightText: string;
@@ -58,6 +64,10 @@ export default function RoutineEditor({
   const [days, setDays] = useState<RoutineDayDraftForm[]>(initialDays);
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [pickerFor, setPickerFor] = useState<{
+    dayIndex: number;
+    exerciseIndex: number;
+  } | null>(null);
 
   const cleanedDraft = useMemo<RoutineDraft>(() => {
     const filteredDays = days
@@ -177,35 +187,32 @@ export default function RoutineEditor({
   }
 
   return (
-    <div className="mx-auto w-full max-w-4xl px-4 py-10">
+    <div className="mx-auto w-full max-w-5xl px-4 py-8 sm:py-10">
       <div className="mb-6 flex items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-semibold">{title}</h1>
-          <p className="mt-2 text-sm text-zinc-600">{subtitle}</p>
+          <h1 className="wa-display text-3xl font-bold sm:text-4xl">{title}</h1>
+          <p className="mt-2 text-sm text-[var(--muted)]">{subtitle}</p>
         </div>
-        <Link
-          href={cancelHref}
-          className="rounded-md border border-zinc-300 px-3 py-2 text-sm font-medium text-zinc-900 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-100"
-        >
+        <Link href={cancelHref} className="wa-btn wa-btn-ghost">
           Back
         </Link>
       </div>
 
-      {error ? <p className="mb-4 text-sm text-red-600">{error}</p> : null}
+      {error ? <p className="mb-4 text-sm text-[var(--danger)]">{error}</p> : null}
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-8">
-        <div className="rounded-xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
-          <label className="flex flex-col gap-1">
-            <span className="text-sm font-medium">Routine name</span>
+      <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+        <div className="wa-card p-5">
+          <label className="flex flex-col gap-1.5">
+            <span className="wa-label">Routine name</span>
             <input
-              className="rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm outline-none focus:border-zinc-500"
+              className="wa-input"
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
             />
           </label>
 
-          <label className="mt-4 flex items-center gap-3 text-sm">
+          <label className="mt-4 flex items-center gap-3 text-sm text-[var(--frost)]">
             <input
               type="checkbox"
               checked={makeActive}
@@ -217,28 +224,19 @@ export default function RoutineEditor({
 
         <div className="flex flex-col gap-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold">Days</h2>
-            <button
-              type="button"
-              onClick={addDay}
-              className="rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white"
-            >
+            <h2 className="wa-display text-2xl font-bold">Days</h2>
+            <button type="button" onClick={addDay} className="wa-btn wa-btn-primary">
               + Add day
             </button>
           </div>
 
           {days.map((day, dayIndex) => (
-            <div
-              key={dayIndex}
-              className="rounded-xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-950"
-            >
+            <div key={dayIndex} className="wa-card p-5">
               <div className="mb-4 flex items-start justify-between gap-4">
-                <label className="flex w-full flex-col gap-1">
-                  <span className="text-sm font-medium">
-                    Day label (e.g., Push)
-                  </span>
+                <label className="flex w-full flex-col gap-1.5">
+                  <span className="wa-label">Day label (e.g., Push)</span>
                   <input
-                    className="rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm outline-none focus:border-zinc-500"
+                    className="wa-input"
                     value={day.label}
                     onChange={(e) => updateDayLabel(dayIndex, e.target.value)}
                     required
@@ -249,7 +247,7 @@ export default function RoutineEditor({
                   <button
                     type="button"
                     onClick={() => removeDay(dayIndex)}
-                    className="rounded-md border border-zinc-300 px-3 py-2 text-sm font-medium text-zinc-900 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-100"
+                    className="wa-btn wa-btn-ghost"
                   >
                     Remove
                   </button>
@@ -257,11 +255,11 @@ export default function RoutineEditor({
               </div>
 
               <div className="flex items-center justify-between">
-                <h3 className="font-medium">Exercises</h3>
+                <h3 className="font-semibold text-[var(--frost)]">Exercises</h3>
                 <button
                   type="button"
                   onClick={() => addExercise(dayIndex)}
-                  className="rounded-md border border-zinc-300 px-3 py-2 text-sm font-medium text-zinc-900 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-100"
+                  className="wa-btn wa-btn-ghost"
                 >
                   + Add exercise
                 </button>
@@ -271,28 +269,60 @@ export default function RoutineEditor({
                 {day.exercises.map((ex, exIndex) => (
                   <div
                     key={exIndex}
-                    className="rounded-lg border border-zinc-200 p-4 dark:border-zinc-800"
+                    className="rounded-2xl border border-[var(--border)] bg-[rgba(7,17,31,0.35)] p-4"
                   >
-                    <div className="grid gap-3 md:grid-cols-2">
-                      <label className="flex flex-col gap-1">
-                        <span className="text-sm font-medium">Exercise</span>
-                        <input
-                          className="rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm outline-none focus:border-zinc-500"
-                          value={ex.name}
-                          onChange={(e) =>
-                            updateExercise(dayIndex, exIndex, {
-                              name: e.target.value,
-                            })
+                    <div className="mb-4 flex gap-4">
+                      <ExerciseMedia name={ex.name || "Custom"} size="md" showMeta />
+                      <div className="min-w-0 flex-1">
+                        <label className="flex flex-col gap-1.5">
+                          <span className="wa-label">Exercise</span>
+                          <input
+                            className="wa-input"
+                            value={ex.name}
+                            onChange={(e) =>
+                              updateExercise(dayIndex, exIndex, {
+                                name: e.target.value,
+                              })
+                            }
+                            placeholder="e.g., Bench Press"
+                            required
+                          />
+                        </label>
+                        <button
+                          type="button"
+                          className="mt-2 text-xs font-semibold text-[var(--ice)]"
+                          onClick={() =>
+                            setPickerFor(
+                              pickerFor?.dayIndex === dayIndex &&
+                                pickerFor?.exerciseIndex === exIndex
+                                ? null
+                                : { dayIndex, exerciseIndex: exIndex },
+                            )
                           }
-                          placeholder="e.g., Bench Press"
-                          required
-                        />
-                      </label>
+                        >
+                          {pickerFor?.dayIndex === dayIndex &&
+                          pickerFor?.exerciseIndex === exIndex
+                            ? "Hide photo picker"
+                            : "Choose from photo library"}
+                        </button>
+                      </div>
+                    </div>
 
-                      <label className="flex flex-col gap-1">
-                        <span className="text-sm font-medium">Sets</span>
+                    {pickerFor?.dayIndex === dayIndex &&
+                    pickerFor?.exerciseIndex === exIndex ? (
+                      <ExercisePicker
+                        onSelect={(picked) => {
+                          updateExercise(dayIndex, exIndex, { name: picked });
+                          setPickerFor(null);
+                        }}
+                      />
+                    ) : null}
+
+                    <div className="mt-4 grid gap-3 md:grid-cols-2">
+                      <label className="flex flex-col gap-1.5">
+                        <span className="wa-label">Sets</span>
                         <input
-                          className="rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm outline-none focus:border-zinc-500"
+                          className="wa-input"
                           type="number"
                           value={ex.sets}
                           min={1}
@@ -304,10 +334,10 @@ export default function RoutineEditor({
                         />
                       </label>
 
-                      <label className="flex flex-col gap-1">
-                        <span className="text-sm font-medium">Reps</span>
+                      <label className="flex flex-col gap-1.5">
+                        <span className="wa-label">Reps</span>
                         <input
-                          className="rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm outline-none focus:border-zinc-500"
+                          className="wa-input"
                           value={ex.reps}
                           onChange={(e) =>
                             updateExercise(dayIndex, exIndex, {
@@ -319,10 +349,10 @@ export default function RoutineEditor({
                         />
                       </label>
 
-                      <label className="flex flex-col gap-1">
-                        <span className="text-sm font-medium">Rest (sec)</span>
+                      <label className="flex flex-col gap-1.5">
+                        <span className="wa-label">Rest (sec)</span>
                         <input
-                          className="rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm outline-none focus:border-zinc-500"
+                          className="wa-input"
                           type="number"
                           value={ex.restSeconds}
                           min={0}
@@ -334,12 +364,10 @@ export default function RoutineEditor({
                         />
                       </label>
 
-                      <label className="flex flex-col gap-1">
-                        <span className="text-sm font-medium">
-                          Target weight (optional)
-                        </span>
+                      <label className="flex flex-col gap-1.5">
+                        <span className="wa-label">Target weight (optional)</span>
                         <input
-                          className="rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm outline-none focus:border-zinc-500"
+                          className="wa-input"
                           type="text"
                           value={ex.weightText}
                           onChange={(e) =>
@@ -347,14 +375,14 @@ export default function RoutineEditor({
                               weightText: e.target.value,
                             })
                           }
-                          placeholder="e.g., 60 or leave blank"
+                          placeholder="e.g., 60"
                         />
                       </label>
 
-                      <label className="flex flex-col gap-1">
-                        <span className="text-sm font-medium">Notes</span>
+                      <label className="flex flex-col gap-1.5 md:col-span-2">
+                        <span className="wa-label">Notes</span>
                         <input
-                          className="rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm outline-none focus:border-zinc-500"
+                          className="wa-input"
                           value={ex.notes}
                           onChange={(e) =>
                             updateExercise(dayIndex, exIndex, {
@@ -371,7 +399,7 @@ export default function RoutineEditor({
                         <button
                           type="button"
                           onClick={() => removeExercise(dayIndex, exIndex)}
-                          className="rounded-md border border-zinc-300 px-3 py-2 text-sm font-medium text-zinc-900 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-100"
+                          className="wa-btn wa-btn-danger"
                         >
                           Remove
                         </button>
@@ -390,7 +418,7 @@ export default function RoutineEditor({
               type="button"
               onClick={handleDelete}
               disabled={isPending}
-              className="rounded-md border border-red-300 px-4 py-2 text-sm font-medium text-red-700 disabled:opacity-60"
+              className="wa-btn wa-btn-danger"
             >
               Delete routine
             </button>
@@ -398,16 +426,13 @@ export default function RoutineEditor({
             <span />
           )}
           <div className="flex items-center gap-3">
-            <Link
-              href={cancelHref}
-              className="rounded-md border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-900 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-100"
-            >
+            <Link href={cancelHref} className="wa-btn wa-btn-ghost">
               Cancel
             </Link>
             <button
               type="submit"
               disabled={isPending}
-              className="rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
+              className="wa-btn wa-btn-primary"
             >
               {isPending ? "Saving..." : submitLabel}
             </button>
