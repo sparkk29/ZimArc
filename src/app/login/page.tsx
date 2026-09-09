@@ -1,17 +1,20 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { FormEvent, useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { FormEvent, Suspense, useMemo, useState } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const supabase = useMemo(() => createSupabaseBrowserClient(), []);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(
+    searchParams.get("error"),
+  );
   const [isPending, setIsPending] = useState(false);
 
   async function onSubmit(e: FormEvent) {
@@ -96,3 +99,16 @@ export default function LoginPage() {
   );
 }
 
+export default function LoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="mx-auto flex min-h-[70vh] w-full max-w-md items-center justify-center px-4 text-sm text-zinc-600">
+          Loading...
+        </div>
+      }
+    >
+      <LoginForm />
+    </Suspense>
+  );
+}

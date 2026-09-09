@@ -8,16 +8,19 @@ export async function createSupabaseServerClient() {
 
   return createServerClient(url, anonKey, {
     cookies: {
-      get(name) {
-        return cookieStore.get(name)?.value;
+      getAll() {
+        return cookieStore.getAll();
       },
-      set(name, value, options) {
-        cookieStore.set({ name, value, ...options });
-      },
-      remove(name) {
-        cookieStore.delete(name);
+      setAll(cookiesToSet) {
+        try {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            cookieStore.set(name, value, options);
+          });
+        } catch {
+          // Called from a Server Component where cookies are read-only.
+          // Middleware will refresh the session instead.
+        }
       },
     },
   });
 }
-

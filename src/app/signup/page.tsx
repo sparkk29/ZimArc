@@ -27,14 +27,25 @@ export default function SignupPage() {
       return;
     }
 
+    const emailRedirectTo = `${window.location.origin}/auth/callback`;
+
     const { error, data } = await supabase.auth.signUp({
       email,
       password,
+      options: {
+        emailRedirectTo,
+      },
     });
 
     setIsPending(false);
 
     if (error) {
+      if (error.message.toLowerCase().includes("rate limit")) {
+        setError(
+          "Too many confirmation emails were sent. Wait a few minutes, or disable email confirmation in Supabase Auth settings for local testing.",
+        );
+        return;
+      }
       setError(error.message);
       return;
     }
@@ -45,8 +56,14 @@ export default function SignupPage() {
       return;
     }
 
+    // Email confirmation required — user exists but no session yet.
+    if (data.user && (!data.user.identities || data.user.identities.length === 0)) {
+      setError("An account with this email already exists. Try logging in.");
+      return;
+    }
+
     setMessage(
-      "Account created. If email confirmation is enabled, check your inbox before logging in.",
+      "Account created. Check your email and click the confirmation link to finish signing in.",
     );
   }
 
@@ -80,6 +97,7 @@ export default function SignupPage() {
             autoComplete="new-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            minLength={6}
             required
           />
         </label>
@@ -93,7 +111,7 @@ export default function SignupPage() {
         </button>
 
         {error ? <p className="text-sm text-red-600">{error}</p> : null}
-        {message ? <p className="text-sm text-zinc-700">{message}</p> : null}
+        {message ? <p className="text-sm text-emerald-700">{message}</p> : null}
       </form>
 
       <p className="mt-6 text-center text-sm text-zinc-600">
@@ -105,4 +123,3 @@ export default function SignupPage() {
     </div>
   );
 }
-
