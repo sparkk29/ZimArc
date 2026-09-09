@@ -82,15 +82,23 @@ export default function WorkoutsPage() {
                     {s.routine_name}
                   </h2>
                 </div>
-                <span
-                  className={
-                    s.completed_at
-                      ? "rounded-full bg-emerald-600/15 px-3 py-1 text-xs font-medium text-emerald-700 dark:text-emerald-300"
-                      : "rounded-full bg-zinc-800 px-3 py-1 text-xs font-medium text-white"
-                  }
-                >
-                  {s.completed_at ? "Completed" : "In progress"}
-                </span>
+                <div className="flex flex-col items-end gap-2">
+                  <span
+                    className={
+                      s.completed_at
+                        ? "rounded-full bg-emerald-600/15 px-3 py-1 text-xs font-medium text-emerald-700 dark:text-emerald-300"
+                        : "rounded-full bg-zinc-800 px-3 py-1 text-xs font-medium text-white"
+                    }
+                  >
+                    {s.completed_at ? "Completed" : "In progress"}
+                  </span>
+                  <Link
+                    href={`/workouts/${s.id}`}
+                    className="rounded-md border border-zinc-300 px-3 py-1.5 text-xs font-medium text-zinc-900 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-100"
+                  >
+                    Edit
+                  </Link>
+                </div>
               </div>
             </div>
           ))

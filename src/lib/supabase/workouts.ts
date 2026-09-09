@@ -231,3 +231,304 @@ export async function listWorkoutSetsForSessions(
   }>;
 }
 
+export type WorkoutSetRow = {
+  id: string;
+  workout_session_id: string;
+  routine_exercise_id: string;
+  set_order: number;
+  planned_reps: string;
+  planned_weight: number | null;
+  actual_reps: number | null;
+  actual_weight: number | null;
+  notes: string | null;
+  exercise_name: string;
+  day_label: string;
+};
+
+export type WorkoutSessionDetail = {
+  id: string;
+  started_at: string;
+  completed_at: string | null;
+  routine_id: string;
+  routine_name: string;
+  notes: string | null;
+  sets: WorkoutSetRow[];
+};
+
+export async function getWorkoutSessionDetail(
+  supabase: SupabaseClient,
+  sessionId: string,
+): Promise<WorkoutSessionDetail | null> {
+  const { data: session, error: sessErr } = await supabase
+    .from("workout_sessions")
+    .select("id,started_at,completed_at,routine_id,notes")
+    .eq("id", sessionId)
+    .maybeSingle();
+
+  if (sessErr) throw sessErr;
+  if (!session) return null;
+
+  const { data: routine, error: routineErr } = await supabase
+    .from("routines")
+    .select("name")
+    .eq("id", session.routine_id)
+    .maybeSingle();
+
+  if (routineErr) throw routineErr;
+
+  const { data: sets, error: setsErr } = await supabase
+    .from("workout_sets")
+    .select(
+      "id,workout_session_id,routine_exercise_id,set_order,planned_reps,planned_weight,actual_reps,actual_weight,notes",
+    )
+    .eq("workout_session_id", sessionId)
+    .order("set_order", { ascending: true });
+
+  if (setsErr) throw setsErr;
+
+  const setRows = (sets ?? []) as Array<Omit<WorkoutSetRow, "exercise_name" | "day_label">>;
+  const exerciseIds = Array.from(
+    new Set(setRows.map((s) => s.routine_exercise_id)),
+  );
+
+  const exerciseMeta = new Map<
+    string,
+    { exercise_name: string; day_label: string }
+  >();
+
+  if (exerciseIds.length > 0) {
+    const { data: exercises, error: exErr } = await supabase
+      .from("routine_exercises")
+      .select("id,exercise_name,routine_day_id")
+      .in("id", exerciseIds);
+
+    if (exErr) throw exErr;
+
+    const dayIds = Array.from(
+      new Set((exercises ?? []).map((e) => e.routine_day_id as string)),
+    );
+
+    const dayLabels = new Map<string, string>();
+    if (dayIds.length > 0) {
+      const { data: days, error: dayErr } = await supabase
+        .from("routine_days")
+        .select("id,label")
+        .in("id", dayIds);
+
+      if (dayErr) throw dayErr;
+      for (const d of days ?? []) {
+        dayLabels.set(d.id as string, d.label as string);
+      }
+    }
+
+    for (const ex of exercises ?? []) {
+      exerciseMeta.set(ex.id as string, {
+        exercise_name: ex.exercise_name as string,
+        day_label: dayLabels.get(ex.routine_day_id as string) ?? "Day",
+      });
+    }
+  }
+
+  const enrichedSets: WorkoutSetRow[] = setRows.map((s) => {
+    const meta = exerciseMeta.get(s.routine_exercise_id);
+    return {
+      ...s,
+      exercise_name: meta?.exercise_name ?? "Unknown exercise",
+      day_label: meta?.day_label ?? "Day",
+    };
+  });
+
+  enrichedSets.sort((a, b) => {
+    if (a.day_label !== b.day_label) return a.day_label.localeCompare(b.day_label);
+    if (a.exercise_name !== b.exercise_name) {
+      return a.exercise_name.localeCompare(b.exercise_name);
+    }
+    return a.set_order - b.set_order;
+  });
+
+  return {
+    id: session.id as string,
+    started_at: session.started_at as string,
+    completed_at: (session.completed_at as string | null) ?? null,
+    routine_id: session.routine_id as string,
+    routine_name: (routine?.name as string) ?? "Routine",
+    notes: (session.notes as string | null) ?? null,
+    sets: enrichedSets,
+  };
+}
+
+export type WorkoutSetUpdate = {
+  id: string;
+  actual_reps: number | null;
+  actual_weight: number | null;
+  notes?: string | null;
+};
+
+export async function updateWorkoutSession(
+  supabase: SupabaseClient,
+  sessionId: string,
+  setUpdates: WorkoutSetUpdate[],
+  sessionNotes?: string | null,
+) {
+  for (const update of setUpdates) {
+    const { error } = await supabase
+      .from("workout_sets")
+      .update({
+        actual_reps: update.actual_reps,
+        actual_weight: update.actual_weight,
+        notes: update.notes ?? null,
+      })
+      .eq("id", update.id);
+
+    if (error) throw error;
+  }
+
+  const { error: sessionErr } = await supabase
+    .from("workout_sessions")
+    .update({ notes: sessionNotes ?? null })
+    .eq("id", sessionId);
+
+  if (sessionErr) throw sessionErr;
+}
+
+export async function deleteWorkoutSession(
+  supabase: SupabaseClient,
+  sessionId: string,
+) {
+  const { error } = await supabase
+    .from("workout_sessions")
+    .delete()
+    .eq("id", sessionId);
+
+  if (error) throw error;
+}
+
+export type ExerciseProgressPoint = {
+  date: string;
+  volume: number;
+  maxWeight: number | null;
+  totalReps: number;
+};
+
+export type ExerciseProgressSummary = {
+  exerciseId: string;
+  exerciseName: string;
+  totalVolume: number;
+  bestWeight: number | null;
+  sessionCount: number;
+  history: ExerciseProgressPoint[];
+};
+
+export async function getExerciseProgress(
+  supabase: SupabaseClient,
+  limit = 90,
+): Promise<ExerciseProgressSummary[]> {
+  const sessions = await listCompletedWorkoutSessions(supabase, limit);
+  if (sessions.length === 0) return [];
+
+  const sessionIds = sessions.map((s) => s.id);
+  const completedAtBySession = new Map(
+    sessions.map((s) => [s.id, s.completed_at]),
+  );
+
+  const { data: sets, error } = await supabase
+    .from("workout_sets")
+    .select(
+      "workout_session_id,routine_exercise_id,actual_reps,actual_weight",
+    )
+    .in("workout_session_id", sessionIds);
+
+  if (error) throw error;
+
+  const exerciseIds = Array.from(
+    new Set((sets ?? []).map((s) => s.routine_exercise_id as string)),
+  );
+
+  const exerciseNames = new Map<string, string>();
+  if (exerciseIds.length > 0) {
+    const { data: exercises, error: exErr } = await supabase
+      .from("routine_exercises")
+      .select("id,exercise_name")
+      .in("id", exerciseIds);
+
+    if (exErr) throw exErr;
+    for (const ex of exercises ?? []) {
+      exerciseNames.set(ex.id as string, ex.exercise_name as string);
+    }
+  }
+
+  type Agg = {
+    exerciseId: string;
+    exerciseName: string;
+    totalVolume: number;
+    bestWeight: number | null;
+    sessionIds: Set<string>;
+    byDate: Map<string, { volume: number; maxWeight: number | null; totalReps: number }>;
+  };
+
+  const byExercise = new Map<string, Agg>();
+
+  for (const row of sets ?? []) {
+    const exId = row.routine_exercise_id as string;
+    const sessionId = row.workout_session_id as string;
+    const completedAt = completedAtBySession.get(sessionId);
+    if (!completedAt) continue;
+
+    const date = completedAt.slice(0, 10);
+    const reps = row.actual_reps as number | null;
+    const weight = row.actual_weight as number | null;
+
+    if (!byExercise.has(exId)) {
+      byExercise.set(exId, {
+        exerciseId: exId,
+        exerciseName: exerciseNames.get(exId) ?? "Unknown exercise",
+        totalVolume: 0,
+        bestWeight: null,
+        sessionIds: new Set(),
+        byDate: new Map(),
+      });
+    }
+
+    const agg = byExercise.get(exId)!;
+    agg.sessionIds.add(sessionId);
+
+    if (reps != null && weight != null) {
+      agg.totalVolume += reps * weight;
+      agg.bestWeight =
+        agg.bestWeight == null ? weight : Math.max(agg.bestWeight, weight);
+    } else if (weight != null) {
+      agg.bestWeight =
+        agg.bestWeight == null ? weight : Math.max(agg.bestWeight, weight);
+    }
+
+    if (!agg.byDate.has(date)) {
+      agg.byDate.set(date, { volume: 0, maxWeight: null, totalReps: 0 });
+    }
+    const day = agg.byDate.get(date)!;
+    if (reps != null) day.totalReps += reps;
+    if (reps != null && weight != null) day.volume += reps * weight;
+    if (weight != null) {
+      day.maxWeight =
+        day.maxWeight == null ? weight : Math.max(day.maxWeight, weight);
+    }
+  }
+
+  return Array.from(byExercise.values())
+    .map((agg) => ({
+      exerciseId: agg.exerciseId,
+      exerciseName: agg.exerciseName,
+      totalVolume: agg.totalVolume,
+      bestWeight: agg.bestWeight,
+      sessionCount: agg.sessionIds.size,
+      history: Array.from(agg.byDate.entries())
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([date, stats]) => ({
+          date,
+          volume: stats.volume,
+          maxWeight: stats.maxWeight,
+          totalReps: stats.totalReps,
+        })),
+    }))
+    .sort((a, b) => b.totalVolume - a.totalVolume);
+}
+
