@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import LogoutButton from "@/components/LogoutButton";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import Link from "next/link";
 
 export default async function DashboardPage() {
   const supabase = createSupabaseServerClient();
@@ -26,8 +27,17 @@ export default async function DashboardPage() {
       <div className="mt-10 rounded-xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
         <h2 className="text-lg font-semibold">Next steps</h2>
         <p className="mt-2 text-sm text-zinc-600">
-          Phase 3 will add your winter arc routine builder and workout tracking.
+          Manage your Winter Arc routine, then start tracking workouts.
         </p>
+
+        <div className="mt-4">
+          <Link
+            href="/routines"
+            className="inline-flex items-center rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800"
+          >
+            Go to routine builder
+          </Link>
+        </div>
       </div>
     </div>
   );
