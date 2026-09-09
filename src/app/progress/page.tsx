@@ -1,7 +1,12 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { listCompletedWorkoutSessions, listWorkoutSetsForSessions } from "@/lib/supabase/workouts";
+import {
+  getExerciseProgress,
+  listCompletedWorkoutSessions,
+  listWorkoutSetsForSessions,
+  type ExerciseProgressSummary,
+} from "@/lib/supabase/workouts";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 
 type CompletedSessionRow = {
@@ -44,6 +49,10 @@ export default function ProgressPage() {
   const [volume14d, setVolume14d] = useState<Array<{ date: string; volume: number }>>([]);
   const [totalVolume30d, setTotalVolume30d] = useState<number>(0);
   const [recentWorkouts, setRecentWorkouts] = useState<string[]>([]);
+  const [exerciseStats, setExerciseStats] = useState<ExerciseProgressSummary[]>(
+    [],
+  );
+  const [selectedExerciseId, setSelectedExerciseId] = useState<string>("");
 
   useEffect(() => {
     (async () => {
@@ -182,6 +191,12 @@ export default function ProgressPage() {
             count: buckets.get(k) ?? 0,
           })),
         );
+
+        const exercises = await getExerciseProgress(supabase);
+        setExerciseStats(exercises);
+        if (exercises.length > 0) {
+          setSelectedExerciseId(exercises[0].exerciseId);
+        }
       } catch (e) {
         setError(e instanceof Error ? e.message : String(e));
       } finally {
@@ -195,6 +210,19 @@ export default function ProgressPage() {
     () => Math.max(1, ...volume14d.map((d) => d.volume)),
     [volume14d],
   );
+
+  const selectedExercise = useMemo(
+    () => exerciseStats.find((e) => e.exerciseId === selectedExerciseId) ?? null,
+    [exerciseStats, selectedExerciseId],
+  );
+
+  const maxExerciseVolume = useMemo(() => {
+    if (!selectedExercise || selectedExercise.history.length === 0) return 1;
+    return Math.max(
+      1,
+      ...selectedExercise.history.map((h) => h.volume),
+    );
+  }, [selectedExercise]);
 
   return (
     <div className="mx-auto w-full max-w-4xl px-4 py-10">
@@ -272,6 +300,90 @@ export default function ProgressPage() {
                 ) : null}
               </div>
             </div>
+          </div>
+
+          <div className="mt-8 rounded-xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
+            <h2 className="text-lg font-semibold">Exercise progress</h2>
+            <p className="mt-1 text-sm text-zinc-600">
+              Volume and personal records per exercise.
+            </p>
+
+            {exerciseStats.length === 0 ? (
+              <p className="mt-4 text-sm text-zinc-600">
+                Log workouts with reps and weight to see exercise stats.
+              </p>
+            ) : (
+              <>
+                <div className="mt-4 grid gap-3 sm:grid-cols-2 md:grid-cols-3">
+                  {exerciseStats.slice(0, 6).map((ex) => (
+                    <button
+                      key={ex.exerciseId}
+                      type="button"
+                      onClick={() => setSelectedExerciseId(ex.exerciseId)}
+                      className={
+                        ex.exerciseId === selectedExerciseId
+                          ? "rounded-lg border-2 border-zinc-900 bg-zinc-50 p-4 text-left dark:border-zinc-100 dark:bg-zinc-900"
+                          : "rounded-lg border border-zinc-200 p-4 text-left hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-900"
+                      }
+                    >
+                      <p className="font-medium">{ex.exerciseName}</p>
+                      <p className="mt-1 text-xs text-zinc-600">
+                        {Math.round(ex.totalVolume)} vol · {ex.sessionCount}{" "}
+                        sessions
+                      </p>
+                      {ex.bestWeight != null ? (
+                        <p className="mt-1 text-xs font-medium text-zinc-800 dark:text-zinc-200">
+                          PR: {ex.bestWeight}
+                        </p>
+                      ) : null}
+                    </button>
+                  ))}
+                </div>
+
+                {selectedExercise ? (
+                  <div className="mt-6">
+                    <h3 className="font-semibold">
+                      {selectedExercise.exerciseName} over time
+                    </h3>
+                    <div className="mt-4 flex items-end gap-2 overflow-x-auto pb-2">
+                      {selectedExercise.history.map((point) => (
+                        <div
+                          key={point.date}
+                          className="flex min-w-[28px] flex-col items-center gap-1"
+                        >
+                          <div
+                            title={`${point.date}: ${Math.round(point.volume)} vol, max ${point.maxWeight ?? "—"}`}
+                            style={{
+                              height: `${Math.round((point.volume / maxExerciseVolume) * 80)}px`,
+                            }}
+                            className="w-4 rounded-sm bg-sky-700 dark:bg-sky-300"
+                          />
+                          <span className="text-[10px] text-zinc-500">
+                            {point.date.slice(5)}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="mt-3 flex flex-wrap gap-4 text-sm text-zinc-600">
+                      <span>
+                        Total volume:{" "}
+                        <strong className="text-zinc-900 dark:text-zinc-100">
+                          {Math.round(selectedExercise.totalVolume)}
+                        </strong>
+                      </span>
+                      {selectedExercise.bestWeight != null ? (
+                        <span>
+                          Best weight:{" "}
+                          <strong className="text-zinc-900 dark:text-zinc-100">
+                            {selectedExercise.bestWeight}
+                          </strong>
+                        </span>
+                      ) : null}
+                    </div>
+                  </div>
+                ) : null}
+              </>
+            )}
           </div>
 
           <div className="mt-8 rounded-xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
