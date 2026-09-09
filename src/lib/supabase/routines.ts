@@ -189,43 +189,49 @@ async function insertRoutineDaysAndExercises(
   routineId: string,
   draft: RoutineDraft,
 ) {
-  for (let dayIndex = 0; dayIndex < draft.days.length; dayIndex++) {
-    const day = draft.days[dayIndex];
+  if (draft.days.length === 0) return;
 
-    const { data: dayRow, error: dayError } = await supabase
-      .from("routine_days")
-      .insert({
+  const { data: dayRows, error: dayError } = await supabase
+    .from("routine_days")
+    .insert(
+      draft.days.map((day, dayIndex) => ({
         routine_id: routineId,
         day_order: dayIndex + 1,
         label: day.label,
-      })
-      .select("id")
-      .single();
+      })),
+    )
+    .select("id,day_order");
 
-    if (dayError) throw dayError;
-    if (!dayRow?.id) throw new Error("Failed to create routine day.");
+  if (dayError) throw dayError;
+  if (!dayRows?.length) throw new Error("Failed to create routine days.");
 
-    for (
-      let exerciseIndex = 0;
-      exerciseIndex < day.exercises.length;
-      exerciseIndex++
-    ) {
-      const ex = day.exercises[exerciseIndex];
-
-      const { error: exError } = await supabase.from("routine_exercises").insert({
-        routine_day_id: dayRow.id,
-        exercise_order: exerciseIndex + 1,
-        exercise_name: ex.name,
-        target_sets: ex.sets,
-        target_reps: ex.reps,
-        target_weight: ex.weight ?? null,
-        rest_seconds: ex.restSeconds,
-        notes: ex.notes ?? null,
-      });
-
-      if (exError) throw exError;
-    }
+  const dayIdByOrder = new Map<number, string>();
+  for (const row of dayRows) {
+    dayIdByOrder.set(row.day_order as number, row.id as string);
   }
+
+  const exerciseRows = draft.days.flatMap((day, dayIndex) => {
+    const dayId = dayIdByOrder.get(dayIndex + 1);
+    if (!dayId) return [];
+    return day.exercises.map((ex, exerciseIndex) => ({
+      routine_day_id: dayId,
+      exercise_order: exerciseIndex + 1,
+      exercise_name: ex.name,
+      target_sets: ex.sets,
+      target_reps: ex.reps,
+      target_weight: ex.weight ?? null,
+      rest_seconds: ex.restSeconds,
+      notes: ex.notes ?? null,
+    }));
+  });
+
+  if (exerciseRows.length === 0) return;
+
+  const { error: exError } = await supabase
+    .from("routine_exercises")
+    .insert(exerciseRows);
+
+  if (exError) throw exError;
 }
 
 export async function updateRoutine(

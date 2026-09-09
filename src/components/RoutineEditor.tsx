@@ -413,30 +413,40 @@ export default function RoutineEditor({
           ))}
         </div>
 
-        <div className="flex items-center justify-between gap-3">
-          {onDelete ? (
-            <button
-              type="button"
-              onClick={handleDelete}
-              disabled={isPending}
-              className="wa-btn wa-btn-danger"
-            >
-              Delete routine
-            </button>
-          ) : (
-            <span />
-          )}
-          <div className="flex items-center gap-3">
-            <Link href={cancelHref} className="wa-btn wa-btn-ghost">
-              Cancel
-            </Link>
-            <button
-              type="submit"
-              disabled={isPending}
-              className="wa-btn wa-btn-primary"
-            >
-              {isPending ? "Saving..." : submitLabel}
-            </button>
+        <div className="sticky bottom-3 z-30 mt-2 rounded-2xl border border-[var(--border)] bg-[rgba(7,17,31,0.92)] p-3 shadow-[0_18px_50px_rgba(0,0,0,0.35)] backdrop-blur-xl sm:bottom-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            {onDelete ? (
+              <button
+                type="button"
+                onClick={handleDelete}
+                disabled={isPending}
+                className="wa-btn wa-btn-danger"
+              >
+                Delete routine
+              </button>
+            ) : (
+              <p className="text-xs text-[var(--muted)]">
+                {cleanedDraft.days.length} day
+                {cleanedDraft.days.length === 1 ? "" : "s"} ·{" "}
+                {cleanedDraft.days.reduce(
+                  (sum, d) => sum + d.exercises.length,
+                  0,
+                )}{" "}
+                exercises
+              </p>
+            )}
+            <div className="ml-auto flex items-center gap-3">
+              <Link href={cancelHref} className="wa-btn wa-btn-ghost">
+                Cancel
+              </Link>
+              <button
+                type="submit"
+                disabled={isPending}
+                className="wa-btn wa-btn-primary min-w-[8.5rem]"
+              >
+                {isPending ? "Saving..." : submitLabel}
+              </button>
+            </div>
           </div>
         </div>
       </form>
