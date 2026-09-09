@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Winter Arc">
+  <rect width="512" height="512" rx="96" fill="#18181b"/>
+  <path d="M96 360 C160 240, 240 200, 256 160 C272 200, 352 240, 416 360"
+        fill="none" stroke="#7dd3fc" stroke-width="36" stroke-linecap="round"/>
+  <circle cx="256" cy="150" r="28" fill="#e0f2fe"/>
+</svg>

@@ -8,6 +8,7 @@ import {
   updateReminderSettings,
   type ReminderSettings,
 } from "@/lib/supabase/profile";
+import { syncReminderSettingsToServiceWorker } from "@/lib/reminders/sw";
 
 const DAY_OPTIONS = [
   { value: 0, label: "Sun" },
@@ -107,7 +108,8 @@ export default function SettingsPage() {
     setIsSaving(true);
     try {
       await updateReminderSettings(supabase, settings);
-      setMessage("Reminder settings saved.");
+      await syncReminderSettingsToServiceWorker(settings);
+      setMessage("Reminder settings saved. You can also install Winter Arc as an app for better offline reminders.");
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
     } finally {
@@ -133,6 +135,7 @@ export default function SettingsPage() {
             <h2 className="text-lg font-semibold">Workout reminders</h2>
             <p className="mt-1 text-sm text-zinc-600">
               Browser notifications at your chosen time on selected days.
+              Install Winter Arc as an app for better offline/background support.
             </p>
 
             <label className="mt-4 flex items-center gap-3 text-sm">

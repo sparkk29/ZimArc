@@ -2,6 +2,10 @@
 
 import { useEffect, useRef } from "react";
 import type { ReminderSettings } from "@/lib/supabase/profile";
+import {
+  pingServiceWorkerReminderCheck,
+  syncReminderSettingsToServiceWorker,
+} from "@/lib/reminders/sw";
 
 const STORAGE_KEY = "winterarc_last_reminder";
 
@@ -43,11 +47,17 @@ export default function ReminderPoller({ settings }: ReminderPollerProps) {
   }, [settings]);
 
   useEffect(() => {
+    if (!settings) return;
+    syncReminderSettingsToServiceWorker(settings).catch(() => {});
+  }, [settings]);
+
+  useEffect(() => {
     if (!settings?.enabled) return;
     if (typeof window === "undefined" || !("Notification" in window)) return;
 
     const tick = () => {
       const current = settingsRef.current;
+      pingServiceWorkerReminderCheck().catch(() => {});
       if (!current || !shouldFireNow(current)) return;
       if (alreadyFiredToday()) return;
       if (Notification.permission !== "granted") return;
