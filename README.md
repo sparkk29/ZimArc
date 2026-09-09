@@ -11,6 +11,7 @@ Create your Winter Arc gym routine, save it, log workouts, and update progress.
 3. Run SQL migrations (Supabase SQL editor):
    - `supabase/001_init.sql` (routines)
    - `supabase/002_workouts.sql` (workout sessions + sets)
+   - `supabase/003_profiles_reminders.sql` (profiles + workout reminders)
 
 ## Getting Started
 
