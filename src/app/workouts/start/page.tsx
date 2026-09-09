@@ -1,9 +1,9 @@
 "use client";
 
-import { createClientComponentClient } from "@supabase/ssr";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import {
   createWorkoutSession,
   getActiveRoutinePlan,
@@ -39,7 +39,7 @@ function parseOptionalFloat(value: string) {
 
 export default function StartWorkoutPage() {
   const router = useRouter();
-  const supabase = useMemo(() => createClientComponentClient(), []);
+  const supabase = useMemo(() => createSupabaseBrowserClient(), []);
 
   const [planDays, setPlanDays] = useState<WorkoutRoutineDayPlan[] | null>(
     null,
@@ -56,6 +56,12 @@ export default function StartWorkoutPage() {
       setError(null);
 
       try {
+        if (!supabase) {
+          setError("Supabase is not configured (missing env vars).");
+          setPlanDays([]);
+          setSessionId(null);
+          return;
+        }
         const plan = await getActiveRoutinePlan(supabase);
         if (!plan) {
           setPlanDays([]);
@@ -110,6 +116,10 @@ export default function StartWorkoutPage() {
   async function onSaveWorkout() {
     if (!sessionId) return;
     if (!planDays) return;
+    if (!supabase) {
+      setError("Supabase is not configured (missing env vars).");
+      return;
+    }
 
     setError(null);
 

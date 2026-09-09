@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import { createClientComponentClient } from "@supabase/ssr";
+import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import {
   getActiveRoutine,
   listRoutines,
@@ -19,7 +19,7 @@ type RoutineRow = {
 
 export default function RoutinesPage() {
   const router = useRouter();
-  const supabase = createClientComponentClient();
+  const supabase = useMemo(() => createSupabaseBrowserClient(), []);
 
   const [routines, setRoutines] = useState<RoutineRow[]>([]);
   const [activeRoutineId, setActiveRoutineId] = useState<string | null>(null);
@@ -28,6 +28,12 @@ export default function RoutinesPage() {
 
   async function refresh() {
     try {
+      if (!supabase) {
+        setError("Supabase is not configured (missing env vars).");
+        setRoutines([]);
+        setActiveRoutineId(null);
+        return;
+      }
       const list = await listRoutines(supabase);
       setRoutines(list as RoutineRow[]);
 
@@ -53,6 +59,10 @@ export default function RoutinesPage() {
     setError(null);
     setIsPending(true);
     try {
+      if (!supabase) {
+        setError("Supabase is not configured (missing env vars).");
+        return;
+      }
       await setActiveRoutine(supabase, routineId);
       await refresh();
     } catch (e) {

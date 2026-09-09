@@ -1,4 +1,16 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Winter Arc (ZimArc)
+
+Create your Winter Arc gym routine, save it, log workouts, and update progress.
+
+## Supabase setup
+
+1. Create a Supabase project.
+2. Copy credentials into your environment:
+   - `NEXT_PUBLIC_SUPABASE_URL`
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+3. Run SQL migrations (Supabase SQL editor):
+   - `supabase/001_init.sql` (routines)
+   - `supabase/002_workouts.sql` (workout sessions + sets)
 
 ## Getting Started
 

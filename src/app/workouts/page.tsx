@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { createClientComponentClient } from "@supabase/ssr";
 import { listWorkoutSessions } from "@/lib/supabase/workouts";
+import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 
 type WorkoutSessionRow = {
   id: string;
@@ -14,7 +14,7 @@ type WorkoutSessionRow = {
 };
 
 export default function WorkoutsPage() {
-  const supabase = createClientComponentClient();
+  const supabase = useMemo(() => createSupabaseBrowserClient(), []);
 
   const [sessions, setSessions] = useState<WorkoutSessionRow[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -23,6 +23,10 @@ export default function WorkoutsPage() {
   useEffect(() => {
     (async () => {
       try {
+        if (!supabase) {
+          setError("Supabase is not configured (missing env vars).");
+          return;
+        }
         const rows = await listWorkoutSessions(supabase);
         setSessions(rows as WorkoutSessionRow[]);
       } catch (e) {
@@ -31,7 +35,8 @@ export default function WorkoutsPage() {
         setIsLoading(false);
       }
     })();
-  }, [supabase]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div className="mx-auto w-full max-w-4xl px-4 py-10">

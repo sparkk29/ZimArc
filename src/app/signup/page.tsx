@@ -1,13 +1,13 @@
 "use client";
 
-import { createClientComponentClient } from "@supabase/ssr";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FormEvent, useState } from "react";
+import { FormEvent, useMemo, useState } from "react";
+import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 
 export default function SignupPage() {
   const router = useRouter();
-  const supabase = createClientComponentClient();
+  const supabase = useMemo(() => createSupabaseBrowserClient(), []);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -20,6 +20,12 @@ export default function SignupPage() {
     setError(null);
     setMessage(null);
     setIsPending(true);
+
+    if (!supabase) {
+      setIsPending(false);
+      setError("Supabase is not configured (missing env vars).");
+      return;
+    }
 
     const { error, data } = await supabase.auth.signUp({
       email,

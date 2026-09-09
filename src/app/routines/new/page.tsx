@@ -1,10 +1,10 @@
 "use client";
 
-import { createClientComponentClient } from "@supabase/ssr";
 import { useRouter } from "next/navigation";
 import { FormEvent, useMemo, useState } from "react";
 import { createRoutine, type ExerciseDraft, type RoutineDayDraft, type RoutineDraft } from "@/lib/supabase/routines";
 import Link from "next/link";
+import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 
 type ExerciseDraftForm = Omit<ExerciseDraft, "weight"> & { weightText: string };
 
@@ -21,7 +21,7 @@ function parseOptionalNumber(value: string) {
 
 export default function NewRoutinePage() {
   const router = useRouter();
-  const supabase = createClientComponentClient();
+  const supabase = useMemo(() => createSupabaseBrowserClient(), []);
 
   const [name, setName] = useState("Winter Arc Routine");
   const [makeActive, setMakeActive] = useState(true);
@@ -102,6 +102,11 @@ export default function NewRoutinePage() {
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     setError(null);
+
+    if (!supabase) {
+      setError("Supabase is not configured (missing env vars).");
+      return;
+    }
 
     if (!cleanedDraft.name) {
       setError("Routine name is required.");

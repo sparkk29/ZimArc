@@ -1,8 +1,8 @@
 "use client";
 
-import { createClientComponentClient } from "@supabase/ssr";
 import { useEffect, useMemo, useState } from "react";
 import { listCompletedWorkoutSessions, listWorkoutSetsForSessions } from "@/lib/supabase/workouts";
+import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 
 type CompletedSessionRow = {
   id: string;
@@ -33,7 +33,7 @@ function getISOWeekKey(d: Date) {
 }
 
 export default function ProgressPage() {
-  const supabase = createClientComponentClient();
+  const supabase = useMemo(() => createSupabaseBrowserClient(), []);
 
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -51,6 +51,17 @@ export default function ProgressPage() {
       setError(null);
 
       try {
+        if (!supabase) {
+          setError("Supabase is not configured (missing env vars).");
+          setTotalWorkouts(0);
+          setStreakDays(0);
+          setVolume14d([]);
+          setTotalVolume30d(0);
+          setWeeklyCounts([]);
+          setRecentWorkouts([]);
+          return;
+        }
+
         const sessions = (await listCompletedWorkoutSessions(supabase)) as Array<{
           id: string;
           completed_at: string;

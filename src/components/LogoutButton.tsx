@@ -1,17 +1,21 @@
 "use client";
 
-import { createClientComponentClient } from "@supabase/ssr";
 import { useRouter } from "next/navigation";
-import { useTransition, useState } from "react";
+import { useMemo, useState, useTransition } from "react";
+import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 
 export default function LogoutButton() {
   const router = useRouter();
-  const supabase = createClientComponentClient();
+  const supabase = useMemo(() => createSupabaseBrowserClient(), []);
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
   async function onLogout() {
     setError(null);
+    if (!supabase) {
+      setError("Supabase is not configured (missing env vars).");
+      return;
+    }
     startTransition(async () => {
       const { error } = await supabase.auth.signOut();
       if (error) {
