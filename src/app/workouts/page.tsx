@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { listWorkoutSessions } from "@/lib/supabase/workouts";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
+import { formatError } from "@/lib/format-error";
 
 type WorkoutSessionRow = {
   id: string;
@@ -30,7 +31,7 @@ export default function WorkoutsPage() {
         const rows = await listWorkoutSessions(supabase);
         setSessions(rows as WorkoutSessionRow[]);
       } catch (e) {
-        setError(e instanceof Error ? e.message : String(e));
+        setError(formatError(e));
       } finally {
         setIsLoading(false);
       }

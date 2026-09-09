@@ -8,6 +8,7 @@ import {
   listRoutines,
   setActiveRoutine,
 } from "@/lib/supabase/routines";
+import { formatError } from "@/lib/format-error";
 
 type RoutineRow = {
   id: string;
@@ -38,7 +39,7 @@ export default function RoutinesPage() {
       const active = await getActiveRoutine(supabase);
       setActiveRoutineId(active?.id ?? null);
     } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
+      setError(formatError(e));
     }
   }
 
@@ -64,7 +65,7 @@ export default function RoutinesPage() {
       await setActiveRoutine(supabase, routineId);
       await refresh();
     } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
+      setError(formatError(e));
     } finally {
       setIsPending(false);
     }

@@ -13,6 +13,7 @@ import {
   updateRoutine,
   type RoutineDraft,
 } from "@/lib/supabase/routines";
+import { formatError } from "@/lib/format-error";
 
 export default function EditRoutinePage() {
   const params = useParams();
@@ -61,7 +62,7 @@ export default function EditRoutinePage() {
           })),
         );
       } catch (e) {
-        setError(e instanceof Error ? e.message : String(e));
+        setError(formatError(e));
       } finally {
         setIsLoading(false);
       }

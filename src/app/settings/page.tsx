@@ -9,6 +9,7 @@ import {
   type ReminderSettings,
 } from "@/lib/supabase/profile";
 import { syncReminderSettingsToServiceWorker } from "@/lib/reminders/sw";
+import { formatError } from "@/lib/format-error";
 
 const DAY_OPTIONS = [
   { value: 0, label: "Sun" },
@@ -54,7 +55,7 @@ export default function SettingsPage() {
         const profile = await getUserProfile(supabase);
         if (profile) setSettings(toReminderSettings(profile));
       } catch (e) {
-        setError(e instanceof Error ? e.message : String(e));
+        setError(formatError(e));
       } finally {
         setIsLoading(false);
       }
@@ -111,7 +112,7 @@ export default function SettingsPage() {
       await syncReminderSettingsToServiceWorker(settings);
       setMessage("Reminder settings saved. You can also install Winter Arc as an app for better offline reminders.");
     } catch (err) {
-      setError(err instanceof Error ? err.message : String(err));
+      setError(formatError(err));
     } finally {
       setIsSaving(false);
     }

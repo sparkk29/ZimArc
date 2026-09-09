@@ -9,6 +9,7 @@ import {
 } from "@/lib/supabase/workouts";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import ExerciseMedia from "@/components/ExerciseMedia";
+import { formatError } from "@/lib/format-error";
 
 type CompletedSessionRow = {
   id: string;
@@ -199,7 +200,7 @@ export default function ProgressPage() {
           setSelectedExerciseId(exercises[0].exerciseId);
         }
       } catch (e) {
-        setError(e instanceof Error ? e.message : String(e));
+        setError(formatError(e));
       } finally {
         setIsLoading(false);
       }

@@ -13,6 +13,7 @@ import {
   type WorkoutSetRow,
 } from "@/lib/supabase/workouts";
 import { getExerciseVisual } from "@/lib/exercises/catalog";
+import { formatError } from "@/lib/format-error";
 
 type SetInputState = {
   repsText: string;
@@ -100,7 +101,7 @@ export default function WorkoutDetailPage() {
         }
         setSetInputs(inputs);
       } catch (e) {
-        setError(e instanceof Error ? e.message : String(e));
+        setError(formatError(e));
       } finally {
         setIsLoading(false);
       }
@@ -146,7 +147,7 @@ export default function WorkoutDetailPage() {
       router.push("/workouts");
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : String(err));
+      setError(formatError(err));
     } finally {
       setIsSaving(false);
     }
@@ -164,7 +165,7 @@ export default function WorkoutDetailPage() {
       router.push("/workouts");
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : String(err));
+      setError(formatError(err));
     } finally {
       setIsSaving(false);
     }

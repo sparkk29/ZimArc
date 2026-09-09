@@ -51,7 +51,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogItem[] = [
     aliases: ["pulldown", "lat pull down", "lat pull"],
     muscle: "Back",
     image:
-      "https://images.unsplash.com/photo-1599058945522-28d584b6f14f?auto=format&fit=crop&w=900&q=80",
+      "https://images.unsplash.com/photo-1599058917212-d750089bc07e?auto=format&fit=crop&w=900&q=80",
     imageAlt: "Person using a lat pulldown machine",
   },
   {
@@ -69,7 +69,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogItem[] = [
     aliases: ["bent over row", "pendlay row", "row"],
     muscle: "Back",
     image:
-      "https://images.unsplash.com/photo-1581009146145-b5ef050c149a?auto=format&fit=crop&w=900&q=80",
+      "https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?auto=format&fit=crop&w=900&q=80",
     imageAlt: "Athlete performing a barbell row",
   },
   {
@@ -96,7 +96,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogItem[] = [
     aliases: ["curl", "dumbbell curl", "barbell curl"],
     muscle: "Arms",
     image:
-      "https://images.unsplash.com/photo-1583454110551-21d2be4ba1ba?auto=format&fit=crop&w=900&q=80",
+      "https://images.unsplash.com/photo-1584863265045-f9d10ca7fa61?auto=format&fit=crop&w=900&q=80",
     imageAlt: "Athlete performing bicep curls",
   },
   {

@@ -15,6 +15,7 @@ import {
   type WorkoutRoutineExercisePlan,
 } from "@/lib/supabase/workouts";
 import { getExerciseVisual } from "@/lib/exercises/catalog";
+import { formatError } from "@/lib/format-error";
 
 type SetInputState = {
   repsText: string;
@@ -93,7 +94,7 @@ export default function StartWorkoutPage() {
         }
         setSetValues(initial);
       } catch (e) {
-        setError(e instanceof Error ? e.message : String(e));
+        setError(formatError(e));
       } finally {
         setIsLoading(false);
       }
@@ -156,7 +157,7 @@ export default function StartWorkoutPage() {
       router.push("/workouts");
       router.refresh();
     } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
+      setError(formatError(e));
     }
   }
 

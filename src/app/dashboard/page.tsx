@@ -23,8 +23,25 @@ export default async function DashboardPage() {
   const quote = QUOTES[new Date().getDate() % QUOTES.length];
   const name = data.user.email?.split("@")[0] ?? "athlete";
 
+  const { error: schemaError } = await supabase
+    .from("routines")
+    .select("id")
+    .limit(1);
+  const schemaMissing =
+    !!schemaError &&
+    (schemaError.code === "PGRST205" ||
+      /Could not find the table/i.test(schemaError.message) ||
+      /schema cache/i.test(schemaError.message));
+
   return (
     <div className="mx-auto w-full max-w-5xl px-4 py-8 sm:py-12">
+      {schemaMissing ? (
+        <div className="mb-6 rounded-2xl border border-amber-400/40 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">
+          Database tables are not set up yet. In the Supabase SQL editor, run{" "}
+          <code className="text-[var(--ice)]">supabase/000_all.sql</code> (or
+          migrations 001–004), then refresh this page.
+        </div>
+      ) : null}
       <section className="animate-fade-up relative overflow-hidden rounded-[2rem] border border-[var(--border)]">
         <div className="absolute inset-0">
           <Image
@@ -76,7 +93,7 @@ export default async function DashboardPage() {
             title: "Workouts",
             copy: "Log sets with rest timers and visual cues.",
             image:
-              "https://images.unsplash.com/photo-1581009146145-b5ef050c149a?auto=format&fit=crop&w=800&q=80",
+              "https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?auto=format&fit=crop&w=800&q=80",
           },
           {
             href: "/progress",
@@ -91,7 +108,7 @@ export default async function DashboardPage() {
             href={card.href}
             className="group wa-card overflow-hidden transition hover:-translate-y-1"
           >
-            <div className="relative h-36">
+            <div className="relative h-36 min-h-[9rem]">
               <Image
                 src={card.image}
                 alt={card.title}

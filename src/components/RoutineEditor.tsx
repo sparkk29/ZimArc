@@ -9,6 +9,7 @@ import type {
 } from "@/lib/supabase/routines";
 import ExerciseMedia from "@/components/ExerciseMedia";
 import ExercisePicker from "@/components/ExercisePicker";
+import { formatError } from "@/lib/format-error";
 
 export type ExerciseDraftForm = Omit<ExerciseDraft, "weight"> & {
   weightText: string;
@@ -117,7 +118,7 @@ export default function RoutineEditor({
     try {
       await onSubmit(cleanedDraft, makeActive);
     } catch (err) {
-      setError(err instanceof Error ? err.message : String(err));
+      setError(formatError(err));
     } finally {
       setIsPending(false);
     }
@@ -131,7 +132,7 @@ export default function RoutineEditor({
     try {
       await onDelete();
     } catch (err) {
-      setError(err instanceof Error ? err.message : String(err));
+      setError(formatError(err));
     } finally {
       setIsPending(false);
     }

@@ -1,6 +1,6 @@
 /* Winter Arc service worker — offline shell + reminder notifications */
 
-const CACHE_NAME = "winterarc-v2";
+const CACHE_NAME = "winterarc-v3";
 const APP_SHELL = ["/manifest.webmanifest", "/icons/icon.svg"];
 
 self.addEventListener("install", (event) => {
@@ -29,23 +29,20 @@ self.addEventListener("fetch", (event) => {
   const request = event.request;
   if (request.method !== "GET") return;
 
-  // Never intercept Next.js / API / auth navigations with stale HTML.
-  // Network-first for documents; cache-first only for static assets.
-  const isDocument = request.mode === "navigate" ||
+  const isDocument =
+    request.mode === "navigate" ||
     (request.headers.get("accept") || "").includes("text/html");
 
+  // Always network-only for HTML to prevent stale shell / hydration issues.
   if (isDocument) {
     event.respondWith(
-      fetch(request).catch(async () => {
-        const cached = await caches.match(request);
-        return (
-          cached ||
-          new Response("Offline. Open Winter Arc again when you are online.", {
+      fetch(request).catch(
+        () =>
+          new Response("Offline. Reopen Winter Arc when you are online.", {
             status: 503,
             headers: { "Content-Type": "text/plain" },
-          })
-        );
-      }),
+          }),
+      ),
     );
     return;
   }
@@ -54,19 +51,17 @@ self.addEventListener("fetch", (event) => {
     caches.match(request).then((cached) => {
       if (cached) return cached;
 
-      return fetch(request)
-        .then((response) => {
-          if (
-            response &&
-            response.ok &&
-            request.url.startsWith(self.location.origin)
-          ) {
-            const clone = response.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
-          }
-          return response;
-        })
-        .catch(() => cached);
+      return fetch(request).then((response) => {
+        if (
+          response &&
+          response.ok &&
+          request.url.startsWith(self.location.origin)
+        ) {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
+        }
+        return response;
+      });
     }),
   );
 });
