@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
+import RestTimer from "@/components/RestTimer";
 import {
   createWorkoutSession,
   getActiveRoutinePlan,
@@ -233,6 +234,10 @@ export default function StartWorkoutPage() {
                           {ex.rest_seconds}s
                         </p>
                       </div>
+                    </div>
+
+                    <div className="mt-4">
+                      <RestTimer defaultSeconds={ex.rest_seconds || 60} />
                     </div>
 
                     <div className="mt-4 flex flex-col gap-3">
