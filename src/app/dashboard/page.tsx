@@ -47,6 +47,15 @@ export default async function DashboardPage() {
             Start workout
           </Link>
         </div>
+
+        <div className="mt-3">
+          <Link
+            href="/progress"
+            className="inline-flex items-center rounded-md border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-900 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-100"
+          >
+            View progress
+          </Link>
+        </div>
       </div>
     </div>
   );

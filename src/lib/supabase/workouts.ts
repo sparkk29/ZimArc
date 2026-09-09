@@ -190,3 +190,44 @@ export async function listWorkoutSessions(supabase: SupabaseClient) {
   }));
 }
 
+export async function listCompletedWorkoutSessions(
+  supabase: SupabaseClient,
+  limit = 60,
+) {
+  const { data: sessions, error: sessErr } = await supabase
+    .from("workout_sessions")
+    .select("id,started_at,completed_at,routine_id")
+    .not("completed_at", "is", null)
+    .order("completed_at", { ascending: false })
+    .limit(limit);
+
+  if (sessErr) throw sessErr;
+
+  return (sessions ?? []) as Array<{
+    id: string;
+    started_at: string;
+    completed_at: string;
+    routine_id: string;
+  }>;
+}
+
+export async function listWorkoutSetsForSessions(
+  supabase: SupabaseClient,
+  sessionIds: string[],
+) {
+  if (sessionIds.length === 0) return [];
+
+  const { data: sets, error } = await supabase
+    .from("workout_sets")
+    .select("workout_session_id,actual_reps,actual_weight")
+    .in("workout_session_id", sessionIds);
+
+  if (error) throw error;
+
+  return (sets ?? []) as Array<{
+    workout_session_id: string;
+    actual_reps: number | null;
+    actual_weight: number | null;
+  }>;
+}
+
