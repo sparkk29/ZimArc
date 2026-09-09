@@ -114,6 +114,7 @@ export async function createWorkoutSession(
 
 export type WorkoutSetDraft = {
   routine_exercise_id: string;
+  exercise_name: string;
   planned_reps: string;
   planned_weight: number | null;
   set_order: number; // 1..target_sets
@@ -131,6 +132,7 @@ export async function saveWorkout(
   const rows = sets.map((s) => ({
     workout_session_id: sessionId,
     routine_exercise_id: s.routine_exercise_id,
+    exercise_name: s.exercise_name,
     set_order: s.set_order,
     planned_reps: s.planned_reps,
     planned_weight: s.planned_weight,
@@ -279,16 +281,25 @@ export async function getWorkoutSessionDetail(
   const { data: sets, error: setsErr } = await supabase
     .from("workout_sets")
     .select(
-      "id,workout_session_id,routine_exercise_id,set_order,planned_reps,planned_weight,actual_reps,actual_weight,notes",
+      "id,workout_session_id,routine_exercise_id,set_order,planned_reps,planned_weight,actual_reps,actual_weight,notes,exercise_name",
     )
     .eq("workout_session_id", sessionId)
     .order("set_order", { ascending: true });
 
   if (setsErr) throw setsErr;
 
-  const setRows = (sets ?? []) as Array<Omit<WorkoutSetRow, "exercise_name" | "day_label">>;
+  const setRows = (sets ?? []) as Array<
+    Omit<WorkoutSetRow, "exercise_name" | "day_label"> & {
+      exercise_name: string | null;
+      routine_exercise_id: string | null;
+    }
+  >;
   const exerciseIds = Array.from(
-    new Set(setRows.map((s) => s.routine_exercise_id)),
+    new Set(
+      setRows
+        .map((s) => s.routine_exercise_id)
+        .filter((id): id is string => Boolean(id)),
+    ),
   );
 
   const exerciseMeta = new Map<
@@ -330,10 +341,14 @@ export async function getWorkoutSessionDetail(
   }
 
   const enrichedSets: WorkoutSetRow[] = setRows.map((s) => {
-    const meta = exerciseMeta.get(s.routine_exercise_id);
+    const meta = s.routine_exercise_id
+      ? exerciseMeta.get(s.routine_exercise_id)
+      : undefined;
     return {
       ...s,
-      exercise_name: meta?.exercise_name ?? "Unknown exercise",
+      routine_exercise_id: s.routine_exercise_id ?? "",
+      exercise_name:
+        s.exercise_name || meta?.exercise_name || "Unknown exercise",
       day_label: meta?.day_label ?? "Day",
     };
   });

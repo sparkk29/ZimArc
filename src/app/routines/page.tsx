@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import {
@@ -18,7 +17,6 @@ type RoutineRow = {
 };
 
 export default function RoutinesPage() {
-  const router = useRouter();
   const supabase = useMemo(() => createSupabaseBrowserClient(), []);
 
   const [routines, setRoutines] = useState<RoutineRow[]>([]);
@@ -119,24 +117,24 @@ export default function RoutinesPage() {
                 ) : null}
               </div>
 
-              {r.id !== activeRoutineId ? (
-                <button
-                  type="button"
-                  disabled={isPending}
-                  onClick={() => onSetActive(r.id)}
-                  className="rounded-md border border-zinc-300 px-3 py-2 text-sm font-medium text-zinc-900 disabled:opacity-60 dark:border-zinc-700 dark:text-zinc-100"
+              <div className="flex flex-col items-end gap-2">
+                {r.id !== activeRoutineId ? (
+                  <button
+                    type="button"
+                    disabled={isPending}
+                    onClick={() => onSetActive(r.id)}
+                    className="rounded-md border border-zinc-300 px-3 py-2 text-sm font-medium text-zinc-900 disabled:opacity-60 dark:border-zinc-700 dark:text-zinc-100"
+                  >
+                    {isPending ? "Setting..." : "Set active"}
+                  </button>
+                ) : null}
+                <Link
+                  href={`/routines/${r.id}`}
+                  className="rounded-md border border-zinc-300 px-3 py-2 text-sm font-medium text-zinc-900 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-100"
                 >
-                  {isPending ? "Setting..." : "Set active"}
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => router.push("/dashboard")}
-                  className="rounded-md border border-zinc-300 px-3 py-2 text-sm font-medium text-zinc-900 dark:border-zinc-700 dark:text-zinc-100"
-                >
-                  View
-                </button>
-              )}
+                  Edit
+                </Link>
+              </div>
             </div>
           </div>
         ))}

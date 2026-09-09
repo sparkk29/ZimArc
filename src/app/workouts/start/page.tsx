@@ -137,6 +137,7 @@ export default function StartWorkoutPage() {
 
             setsToInsert.push({
               routine_exercise_id: ex.id,
+              exercise_name: ex.exercise_name,
               planned_reps: ex.target_reps,
               planned_weight: ex.target_weight,
               set_order: setOrder,

@@ -12,6 +12,7 @@ Create your Winter Arc gym routine, save it, log workouts, and update progress.
    - `supabase/001_init.sql` (routines)
    - `supabase/002_workouts.sql` (workout sessions + sets)
    - `supabase/003_profiles_reminders.sql` (profiles + workout reminders)
+   - `supabase/004_routine_edit_safe.sql` (safe routine editing with history)
 
 ## Getting Started
 
