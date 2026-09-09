@@ -24,11 +24,9 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
-**Required before routines/workouts work:** run the database migrations in your Supabase project. Easiest path — paste `supabase/000_all.sql` into the Supabase **SQL Editor** and run it. Details: [docs/SETUP.md](docs/SETUP.md).
+Before first use, run `supabase/000_all.sql` in the Supabase SQL Editor (or migrations `001`–`004`). Full setup: [docs/SETUP.md](docs/SETUP.md).
 
 ## App walkthrough
-
-Screens below are from the live app. **Routines / workouts / progress / settings need the SQL migrations** — if those pages say tables are missing, run `supabase/000_all.sql` once (see [docs/SETUP.md](docs/SETUP.md)), then `npm run screenshots` to refresh shots.
 
 | Step | Screen |
 |------|--------|
@@ -38,12 +36,12 @@ Screens below are from the live app. **Routines / workouts / progress / settings
 | Routines | ![Routines](docs/screenshots/04-routines.png) |
 | Build a routine | ![Builder](docs/screenshots/05-routine-builder.png) |
 | Exercise photos | ![Picker](docs/screenshots/06-exercise-photo-picker.png) |
-| Workout history | ![Workouts](docs/screenshots/07-workouts.png) |
 | Log a session | ![Session](docs/screenshots/08-workout-session.png) |
+| Workout history | ![Workouts](docs/screenshots/07-workouts.png) |
 | Progress | ![Progress](docs/screenshots/09-progress.png) |
 | Reminders | ![Settings](docs/screenshots/10-settings.png) |
 
-Mobile:
+### Mobile
 
 | Dashboard | Routine builder |
 |-----------|-----------------|
