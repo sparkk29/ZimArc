@@ -9,6 +9,7 @@ import {
   toReminderSettings,
   type ReminderSettings,
 } from "@/lib/supabase/profile";
+import Logo from "./Logo";
 import ReminderPoller from "./ReminderPoller";
 
 const AUTH_ROUTES = new Set(["/login", "/signup"]);
@@ -47,9 +48,11 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         <header className="sticky top-0 z-40 border-b border-[var(--border)] bg-[rgba(7,17,31,0.78)] backdrop-blur-xl">
           <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-3">
             <Link href="/dashboard" className="group flex items-center gap-3">
-              <span className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[rgba(158,201,222,0.28)] bg-[rgba(63,135,168,0.18)] text-sm font-bold text-[var(--ice)]">
-                WA
-              </span>
+              <Logo
+                size={38}
+                priority
+                className="transition duration-300 group-hover:-rotate-6 group-hover:scale-105"
+              />
               <span>
                 <span className="wa-display block text-lg font-bold leading-none tracking-tight">
                   Winter Arc

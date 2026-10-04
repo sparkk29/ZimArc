@@ -1,6 +1,6 @@
 /* Winter Arc service worker — offline shell + reminder notifications */
 
-const CACHE_NAME = "winterarc-v3";
+const CACHE_NAME = "winterarc-v4";
 const APP_SHELL = ["/manifest.webmanifest", "/icons/icon.svg"];
 
 self.addEventListener("install", (event) => {
@@ -128,7 +128,7 @@ async function maybeNotify() {
   await self.registration.showNotification("Winter Arc", {
     body: "Time for your workout. Stay on your arc.",
     icon: "/icons/icon.svg",
-    badge: "/icons/icon.svg",
+    badge: "/icons/icon-192.png",
     tag: "winterarc-reminder",
   });
   await idbSet(LAST_FIRE_KEY, today);

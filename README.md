@@ -1,6 +1,12 @@
-# Winter Arc (ZimArc)
+<p align="center">
+  <img src="public/icons/icon.svg" alt="Winter Arc logo" width="120" />
+</p>
 
-Create gym routines, log workouts with rest timers, and track progress — with photo-backed exercises and optional workout reminders.
+<h1 align="center">Winter Arc (ZimArc)</h1>
+
+<p align="center">
+  Create gym routines, log workouts with rest timers, and track progress — with photo-backed exercises and optional workout reminders.
+</p>
 
 ![Login](docs/screenshots/01-login.png)
 
@@ -55,6 +61,10 @@ Before first use, run `supabase/000_all.sql` in the Supabase SQL Editor (or migr
 - [Architecture](docs/ARCHITECTURE.md) — app structure
 - [Screenshots](docs/SCREENSHOTS.md) — regenerate product shots
 - [Contributing](CONTRIBUTING.md)
+
+## Logo
+
+The mark is a barbell bending into an arc over a snowflake. Source geometry lives in `scripts/generate-icons.mjs`; run `npm run icons` to regenerate the SVG, favicon, Apple touch icon, and PWA icons.
 
 ## Stack
 

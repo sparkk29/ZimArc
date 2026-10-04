@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useMemo, useState } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
+import Logo from "@/components/Logo";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -69,6 +70,7 @@ export default function SignupPage() {
   return (
     <div className="mx-auto grid min-h-[100dvh] w-full max-w-5xl items-center gap-8 px-4 py-10 lg:grid-cols-2">
       <div className="animate-fade-up hidden lg:block">
+        <Logo size={88} priority className="mb-6" />
         <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--ice)]">
           Winter Arc
         </p>
@@ -82,6 +84,10 @@ export default function SignupPage() {
       </div>
 
       <div className="animate-fade-up-delay wa-card p-6 sm:p-8">
+        <div className="mb-5 flex items-center gap-3 lg:hidden">
+          <Logo size={44} priority />
+          <span className="wa-display text-xl font-bold">Winter Arc</span>
+        </div>
         <h2 className="wa-display text-3xl font-bold">Create account</h2>
         <p className="mt-2 text-sm text-[var(--muted)]">
           Start your Winter Arc gym routine.

@@ -27,10 +27,6 @@ export const metadata: Metadata = {
     statusBarStyle: "black-translucent",
     title: "Winter Arc",
   },
-  icons: {
-    icon: "/icons/icon.svg",
-    apple: "/icons/icon.svg",
-  },
 };
 
 export const viewport: Viewport = {
